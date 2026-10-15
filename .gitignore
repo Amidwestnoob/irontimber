@@ -1,0 +1,10 @@
+/target/
+/.kernel-target/
+**/target/
+*.gguf
+*.safetensors
+.env
+.env.*
+__pycache__/
+*.pyc
+*.log
