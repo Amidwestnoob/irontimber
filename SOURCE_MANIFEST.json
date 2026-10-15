@@ -1,0 +1,1057 @@
+{
+  "snapshot": "C10",
+  "qualified_binary_sha256": "59967c858cfd1c1868f65bad1e254a12ff0587467404bb4c07e1ddaa767eeac9",
+  "scope": "Every exported production source, shader, lockfile and original test file is byte-identical to the qualified C10 snapshot. Public documentation/configuration/metadata are new. Historical private orchestration and logs are not exported.",
+  "files": [
+    {
+      "path": "src/model.rs",
+      "sha256": "61f9d343068ae0378264ec499e3d2bb1b6e966ab62d095099dfc559fa08bbd8f",
+      "executable": false
+    },
+    {
+      "path": "src/gguf.rs",
+      "sha256": "ed63dcff0cee1887c1bca98bbbf863815d59a0e365ae241cccef77985df61ed3",
+      "executable": false
+    },
+    {
+      "path": "src/main.rs",
+      "sha256": "4ad5168e60011f79162f8e93208cb3df3fccfb61cc176198be4f0cbf449ada4f",
+      "executable": false
+    },
+    {
+      "path": "src/engine.rs",
+      "sha256": "20b7db136b2f3b0a1199201b36ef0a82ac02d81799a637ab70121c49102ebdff",
+      "executable": false
+    },
+    {
+      "path": "src/cpu.rs",
+      "sha256": "11aeecb3508314d6a6b6ccecd8deb9d4760c94ed449b21186591eed8b602530d",
+      "executable": false
+    },
+    {
+      "path": "src/lib.rs",
+      "sha256": "c4762f5077351eb90eb36d0b92e18667d78b758e387d958edfce4653a13dd958",
+      "executable": false
+    },
+    {
+      "path": "src/quant.rs",
+      "sha256": "401cdae02d1237f4744e0cd788ad39a56923a36447f9bc3bf51eaff81f9cc61a",
+      "executable": false
+    },
+    {
+      "path": "src/server.rs",
+      "sha256": "b862b7f64a332af62924c3d3c552cb092de29e2c10f241cc9b4ba747010d6296",
+      "executable": false
+    },
+    {
+      "path": "src/sampling.rs",
+      "sha256": "945ba18bdec54ca0b19c18b860243c390fb026853acf7a6e10421f7566579d83",
+      "executable": false
+    },
+    {
+      "path": "src/chat.rs",
+      "sha256": "fa0a95c6ae451d895b8e5c9390cf1e647cf1157f4ffcba05078821303a592ecd",
+      "executable": false
+    },
+    {
+      "path": "src/tokenizer.rs",
+      "sha256": "8eb44e604c110087b21d35b798a0d788140d7550f575a26dbc43e3318da2244c",
+      "executable": false
+    },
+    {
+      "path": "src/mtp.rs",
+      "sha256": "00abc31ed23c6e0ae3b4f06c1852942bd2fbeed201fd701b420930b471618bc9",
+      "executable": false
+    },
+    {
+      "path": "src/hadamard.rs",
+      "sha256": "3ca097244be4b52376c356c33e5a65d56501f73909719557b650eebb1bc15d88",
+      "executable": false
+    },
+    {
+      "path": "src/bin/bonsai-tools.rs",
+      "sha256": "9584d4d8d3cbfc09143626f781d42b386ae147f2e0e5004565e9978e69798ccc",
+      "executable": false
+    },
+    {
+      "path": "src/bin/parity-bench.rs",
+      "sha256": "fecd7a8a71a1a85d8838269154e9680555517122923e6a994c47df732b6556ec",
+      "executable": false
+    },
+    {
+      "path": "src/vk/lifetime.rs",
+      "sha256": "cd6ee4e60778753479cce498ad9de56ed115f92d1086d3cc5b1f6fc5ff69fe55",
+      "executable": false
+    },
+    {
+      "path": "src/vk/kparity.rs",
+      "sha256": "7f54016cdec850f9b50d3415df69118ae49ef6de16c9a5b9f79d70409b1a16a1",
+      "executable": false
+    },
+    {
+      "path": "src/vk/mod.rs",
+      "sha256": "9acb36c27ce8b043afedbe0740838ac0d939a7bd519595067e3e9c6c17594525",
+      "executable": false
+    },
+    {
+      "path": "src/vk/prefill_pack.rs",
+      "sha256": "a4d0ec09637f4a415d8ab60791d09764c48b9f770275f9e7f70aeb357fc4bad5",
+      "executable": false
+    },
+    {
+      "path": "src/vk/prefill_dense_review.rs",
+      "sha256": "d8e50eb8d1f073448f29d4d662c487c6a7295ece69fda1360601616cbf9b1c98",
+      "executable": false
+    },
+    {
+      "path": "src/vk/lifetime_tests.rs",
+      "sha256": "c357dfe8712f515af03f5cc4135715b4410a8c7433632dc092f9ba1373448784",
+      "executable": false
+    },
+    {
+      "path": "src/vk/r012_parity.rs",
+      "sha256": "28e6d1046afdb9bc0c62fb74c4872953e230a7fcc7b81607bab3d8bc5d42af22",
+      "executable": false
+    },
+    {
+      "path": "kernels/Cargo.toml",
+      "sha256": "cf4afc49faac9d71b51fb7770fd07fdf6a331e9943163b6c3bdbd1337fa149a6",
+      "executable": false
+    },
+    {
+      "path": "kernels/Cargo.lock",
+      "sha256": "5b8113aecf7af714c5a565647dcfabb0b3729556613f5744354c4631ecf97220",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_tail.rs",
+      "sha256": "e3dd06cc65de8e332c9a3d34e21c914cba4598cb0e671f92ba4b9fb841f9edc0",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_wave.rs",
+      "sha256": "0c6ae6f1fb8055695a76e181b4a2369d11f3b94478d9cf93d0c408c032975aaf",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_columns_wide.rs",
+      "sha256": "8ebed373d7cba9b7061c906beb13ef2e2e1a790d03ce80f711efa8fdd01b5d97",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_dense.rs",
+      "sha256": "f0e487e06f4da2445911ae21bac5a99de4a0ecd4209e347b4cf608697ba0cca9",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_columns_short.rs",
+      "sha256": "8e686287c45c2c065c87c35c80e9e5a514db5436f54f6a8babc33238ee9aa8bf",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_lut_vector.rs",
+      "sha256": "3be848c104c1a5c522744f083a21e534cc78571788e2d0710d3855058d8d8ff1",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_trit.rs",
+      "sha256": "b35b66dcb60cc96bcc598d186e14c57589f14c2895f97c5c268dfbf348be0936",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_shapes.rs",
+      "sha256": "371afda1b67a1a489fc57e34cf0ea1aaad6c76f8272d63818217f57c950c5b82",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_pipeline.rs",
+      "sha256": "c8a3ca7d4b50538900bfaed9887da070402501fbade29bd101d81c33d2736634",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_square.rs",
+      "sha256": "7bb2ddd2f5d2a2fa26bee1a2efdddab924660b25094f2082d1ef4ab694a9dc5d",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_attention.rs",
+      "sha256": "e486f40558bf6b6e0a64ff8d21db2048746c411b0cbd7dd06acbbf1b42909a0d",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_columns_group.rs",
+      "sha256": "8f2f383d225accef7db9df903ba9c7e1abcc2c172b929619df14b9c95254e042",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_columns_k64.rs",
+      "sha256": "dd066d22e36603debacc07f41de3d17970ff630107001beb3d3f3b7cb4086f57",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_swizzle.rs",
+      "sha256": "95d69c65266f8b9c9cfa5e76a5eaf9d1dafa4cb2e02b95da1ecc08836ee8c039",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/lib.rs",
+      "sha256": "b906fecda060ea81f72f21c68f2c441e265baf5e3f9a2d0625c7de8ea8509398",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill.rs",
+      "sha256": "df340ba0eccbdb1b1b3bb7812270d2698c08b0019f99aa1df2f6501057889097",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_lut.rs",
+      "sha256": "eebc9e601c3bc35bab12aea05a330b8608f43fdd602f7fde7d631fd416b0aafa",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_gqa.rs",
+      "sha256": "ba771255d8271e9a12500f950a8c76a162c37a705e4cd92b6adf01b6f1f5938f",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_resume.rs",
+      "sha256": "4fb87b7ca4854c4a922b0541c3160c27b4a4956441403f804c90b729255642a0",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_banked.rs",
+      "sha256": "9fbcc010b1e8121fd1a987acc48cb077df102a94e718bffc76fb05f8587a0f00",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_register.rs",
+      "sha256": "4f3eb6a61808869b0a867f15e4f5399a6c442a4e5c695f78304e63f21bf02c2d",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_half.rs",
+      "sha256": "630fe7d44e36e52a6ced94dfb065ee8ec2599c0356ae4a2a87a6f7b88ea5fe32",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_columns.rs",
+      "sha256": "543006a853c47c251dbeb466325e574cf6b1a354d24f172b7287abdf4bb32de1",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_occupancy.rs",
+      "sha256": "8d96214e7abf42d76d6f8a8181c777a34794591dff24e7c70abb83925d8876e6",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_columns_small.rs",
+      "sha256": "da67b3c8b3360f5113f4b00d133eabb5d9b79cbb5564ecbbf195d3012fc242c5",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_columns_k16.rs",
+      "sha256": "5f7f4bd34313fe8c266c2d1311beb846690dd6991ea096290dbab03a2d0d56bf",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_direct.rs",
+      "sha256": "0e55cd996cfc8d251b6c904d8e3fc70f358f1848c7b7b90613b8f9abc2645a32",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_trit_scalar.rs",
+      "sha256": "c8228a8dcf6041a8b511497cb53680870765a7b4af59a5cedc4e0bfbe73df3c3",
+      "executable": false
+    },
+    {
+      "path": "kernels/src/prefill_attention_small.rs",
+      "sha256": "8342f2f88525d8b2119a07e6453dca4ac744b421dcd2d911b8c13f72cfc32fb8",
+      "executable": false
+    },
+    {
+      "path": "shaders/rmsnorm.comp",
+      "sha256": "f09adbb39f7ef38674881e00bd1c776201ec26f0c317c9bb81f6c53bb0c51af4",
+      "executable": false
+    },
+    {
+      "path": "shaders/matvec_t2.comp",
+      "sha256": "595312c8c9956ea067c9e816e18ef0dd28e8c5afaf418c8960647e7cd055eab1",
+      "executable": false
+    },
+    {
+      "path": "shaders/matvec_f32.comp",
+      "sha256": "a77ef468c737947266faec5dd9eba641a4b10ad5246431ad0ca0bf85d76a3046",
+      "executable": false
+    },
+    {
+      "path": "shaders/matmul_t2s.comp",
+      "sha256": "64618744ef90df96c06876a7f32f1a49095dab1c9c439fb61915adf98e1f6866",
+      "executable": false
+    },
+    {
+      "path": "shaders/matvec_q8.comp",
+      "sha256": "1774014cb8bc60837a8f5756c332a6c357913e113e1c96e55270af3da81b20b0",
+      "executable": false
+    },
+    {
+      "path": "shaders/rope.comp",
+      "sha256": "5263b7d9ca72aa6012fc5239c66f39f85e16d7bbaa8469d2d10588fc804d16b0",
+      "executable": false
+    },
+    {
+      "path": "shaders/gdn.comp",
+      "sha256": "579ff85d76064ff96c628f0998d44e30f90f704d40e3d16de67ae9ffafb0fe33",
+      "executable": false
+    },
+    {
+      "path": "shaders/conv.comp",
+      "sha256": "33eb1744b3cd6e2d5a7aff21cbbd49d1f986b324dcff1fe94cf0368a9fb765b5",
+      "executable": false
+    },
+    {
+      "path": "shaders/common.glsl",
+      "sha256": "befae86582bd7f9efbd59dc9872f2d256cae3c4966306f012fb8f9770d2c5472",
+      "executable": false
+    },
+    {
+      "path": "shaders/attn.comp",
+      "sha256": "eeb9487578c07a1ac9225fe07012990fab2152fcd3260e1d455a65c54b792b65",
+      "executable": false
+    },
+    {
+      "path": "shaders/hadamard.comp",
+      "sha256": "25016adebe382b99cb1736994cf95f4445650277f4309021cd98b2bd1b2bcc8a",
+      "executable": false
+    },
+    {
+      "path": "shaders/ewise.comp",
+      "sha256": "660c283cbbbd09621e5661883305b0d50220b18da6c9acc2286043eb2749f5b6",
+      "executable": false
+    },
+    {
+      "path": "shaders/gdn_p.comp",
+      "sha256": "0a02afd2b78271e4634474074815b9f805317632b9c791ae2edb9cf595bbce68",
+      "executable": false
+    },
+    {
+      "path": "shaders/matmul_t2.comp",
+      "sha256": "1265c9db4606d8814843b2c87e4cf4cf3d3fcdc61b79f5dd8dc82b2052ae91bb",
+      "executable": false
+    },
+    {
+      "path": "shaders/argmax.comp",
+      "sha256": "42f94867a9faa24c590475e86bc75ec33ada4ab6ef19d74444f2007c20eb46e0",
+      "executable": false
+    },
+    {
+      "path": "shaders/matvec_t2_1.comp",
+      "sha256": "933aea26703dee3b68319007f7badfd33bf8022c4be4c1d620303873ce6c95ee",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv/gdn_p.spv",
+      "sha256": "e5ef0bc3244ffa7efb57756e545e18cf65f54477a1c94715900b82acc210588a",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv/matvec_t2_1.spv",
+      "sha256": "f17e714f99a091ad3c8881019e687d33368b23ccef496024b059a566a5acdaac",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv/argmax.spv",
+      "sha256": "911de6cfb4b4794b73ebd15af9d434fed98d5a66b54e3d35a4331aa289f57126",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv/attn.spv",
+      "sha256": "4a02b469bb9e5ef50292c74b58645627180b14b13a926b918f82661cebadbdbd",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv/matvec_q8.spv",
+      "sha256": "098b3c77711e81b98163e2a69c3e455ab8436d9f0a111bd82b9f471495d17b29",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv/hadamard.spv",
+      "sha256": "e4b4170222afc084bd57743c842fe5c57fb68ec7e0a4f2d8621a786cdb0eb8d5",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv/matvec_t2.spv",
+      "sha256": "c1c221b068c28369bf097984c427bc74d20b7145351162581204cc2e302f97a1",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv/ewise.spv",
+      "sha256": "f21a578d1b9f93b41d7b4e8048e0e98da70c7d97b5b4a878778314540bf7e288",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv/matmul_t2s.spv",
+      "sha256": "bb17230c57d8b0b365f3d64e963c1e4a4c38319a9b29d025e406802da4d72c13",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv/gdn.spv",
+      "sha256": "fd230a8e381591a0ee20027eacb6d0f2dd0bfb15f604f1590470abb7ae2c7d21",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv/matmul_t2.spv",
+      "sha256": "d6fab23b85b20770e7ac92c44fbc94cb906680c63e60fb08a1672bc6780fdfa2",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv/conv.spv",
+      "sha256": "4da12465195ef9ad04a6e0ee8a5e775c480b8a233e26af419fb21f91661cb5c2",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv/rmsnorm.spv",
+      "sha256": "9d7766de7413d1e02732d88b26dc48556a69e09cd4d50299ef893f680198f8fc",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv/matvec_f32.spv",
+      "sha256": "f587e63a8338efe578087a12c626888e78025745cde2b35ec2cd4c514ae436aa",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv/rope.spv",
+      "sha256": "fcc882698e16f8084ed9eed3bc63d6346c4c0f51716f34303174c9b6a88f11ed",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matvec_c8.spv",
+      "sha256": "f5a1202068c01f0f94e781cd2c754ef87c15595ea62a684869a0b20b7d6c7e22",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_trit4.spv",
+      "sha256": "059080b043f8ee95c9168c023d4ac31c97e94fb8019158c62930591fa2817aee",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_pf64.spv",
+      "sha256": "e6a04430dab7a8ba70ed94f3af2e5812ad73455b8a1054c0242010d9f4a1aa43",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/gdn_p.spv",
+      "sha256": "f82fa96390dece504b62ad486846eeca693db827a0a68787ad70c084b3b0d6cb",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/attn_comb.spv",
+      "sha256": "f48c1c9306a98d58164468168988923c3af5096c5602e20b7cb47238f951a87c",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_pf_h16.spv",
+      "sha256": "dbfe64464d45b677b0e12c3e233ce1bfaba7e87dec93098e7ff47123b31df481",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_colwave.spv",
+      "sha256": "7b52523dd36a74dbb630b1271a1a345bc5558f13b534bad76d31fc9a153de9c3",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_r32t64.spv",
+      "sha256": "3d71f0a2d14d8616e2404fffa2401614a4711335623e36ba2757e9e4c49de578",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_k16.spv",
+      "sha256": "592d2730a922bf5830e78f3a600d8392aa9ffe6c9d8dc2f37db4195f1e82de54",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matvec_t2_1.spv",
+      "sha256": "20a313fea8598b7234c5c3c3dc0c826cb8b792c54d3d220c40cd60be9c606b89",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_trits.spv",
+      "sha256": "9f32145941ffb2d790ae88cd54f775574fde02aed8c1c033293c81270f2f51cb",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_k64.spv",
+      "sha256": "a0475f2daef4b8a1f57e41522186e612561193ce4e4c11f359c5afe9267fcddc",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_r64.spv",
+      "sha256": "c69ddc1b8c2a49b2ed021014c20238f9f33a9b66cce0d6bfee2a37c7837c4e67",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/argmax.spv",
+      "sha256": "4de72e7a07a769894adc31e7e3fb638e53845cf0704b8454ca0c5c14df98277a",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/attn.spv",
+      "sha256": "ec3e5ad50d27a8e57b8cb0fc3074116a0caf824d2e35874ded5e47be1f3771b8",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_sw16.spv",
+      "sha256": "efbd86ff4a0a4455fe7eec4a7a26bfcc24b28bc8ddd267a1ba9356d5348ec6c3",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matvec_q8.spv",
+      "sha256": "3d26058b521973716143df7ebcab846cff77ecdfaa85c62d73805060bd279010",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/hadamard.spv",
+      "sha256": "69673e23a635dd2632b20fd3c876f0886d342b4752daf558389881ec10413273",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_fma8.spv",
+      "sha256": "f7472a0773ce4602fc869cd65c96f21a905159c24b2e013ea55a5a6620589970",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/attn_s.spv",
+      "sha256": "39a4afb37acb4299f3da46d47ec06fb1b4798da689b0700d5d073eecfffc6f68",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matvec_t2.spv",
+      "sha256": "fe2bf63c4f6fb75d2fcedd0824596b88bf9431b93d9d3708dcda693549f69958",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/attn_gqa2.spv",
+      "sha256": "9a86358985cf2c9f825a7707814aa455c845f3434a59147dc53ab0cfe0438f6b",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_colsoa.spv",
+      "sha256": "6e100833b554df275d9a8fd025de50e83535e40f59c2b7f15dbba86bccd9e8b9",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_pf512.spv",
+      "sha256": "c012095d81f67c38d775f59634d9f835817682ea6eee9bfcfed9bdbcc75f3526",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matvec_c8x4.spv",
+      "sha256": "f127f376e6630f3570e2b173b484222ae2006c8493f96c1aed511733d9777682",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/ewise.spv",
+      "sha256": "1aaf8550a0c7b68fb76edaf26566dba7e95931e1eed153aa45a9ead20da665cb",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/attn_gqa8.spv",
+      "sha256": "bb8b5a92088f7fcad2256722e0291285d95b088e247dda77d52d5169d7592ea4",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_r512.spv",
+      "sha256": "99fdbbdba1dd1e81ec9545a4a1567b97540863ca5adee5966298f3bb31d1a171",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_u8.spv",
+      "sha256": "e29a705e9e50b9a28937f4ee497be219907500b8a987493e8401bffafb011e08",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_dt.spv",
+      "sha256": "b14f516f7353744bd9ac3f564c5b31d580e092888172bf10724637a6df5dc4f7",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_sq4.spv",
+      "sha256": "9ef253f436f92818c47ce5f3c0c51a749d22396484ecf45459a7b9c7bc8cf73c",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_pipe.spv",
+      "sha256": "80388963530a748ffa9b62a0ff882dbbe45778f4d0a3628fb033cd17ef1d20a0",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col.spv",
+      "sha256": "47503df0af2b0b613de0373a99b45ee4f4f5064860e28e47a85a1b9cc50d4c17",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_u4.spv",
+      "sha256": "ee22d86e6a44bbeb10a935cf8799944bd444382469ba2e347624c8c694ecd713",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_r32t32.spv",
+      "sha256": "b8245e029dc78c2cd251ad4cfcaafa7364f08e185f6b8639c9af12ed9843c910",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col128u32.spv",
+      "sha256": "c86774f6d46c9d0dfbaeea05d93da30c6d1f804153cb3446c34fe4bf2515a212",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_w512.spv",
+      "sha256": "25f800f6497df3c4eef88c3d20ced8f06e16b9e321d503ab02f95c27e0581678",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_dr512.spv",
+      "sha256": "c0b3440af8c4638021977ecac3be0b625325b75959e53a9263d68ed8b2d7aa15",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_ru8.spv",
+      "sha256": "8be2c29bc6196098ca15c88a2b83b15872c3c1958e9a93b5c7b23e90d0083196",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/kv_pack.spv",
+      "sha256": "7eba869e80a71de5d4983ef61c0acd91219a030527d45887952792319e4a4274",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_dr16.spv",
+      "sha256": "9c748dce8ea69d15be9e9bee7b244a1cc24698cbf287cff77bb0d097f27dfc5e",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_u16.spv",
+      "sha256": "2cbf694c58bc22791dab4bef95b32a55bde78a8e227f6aa706b3e8a87b04c5df",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_r128.spv",
+      "sha256": "ce70324a15c73d733d7c1119fc49fd23e3110f6f21e4d7c1ab165eae16ba10c1",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_t2s.spv",
+      "sha256": "9f179c57bf8d3b09d3ed3a8bbf8d857bea07fddb0cce42563ca327565cdfa47e",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col128u8.spv",
+      "sha256": "c6a2b7370ef72beea2428bad2277526563554f21cdb1e46621ae98ced7f0ff95",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/gdn.spv",
+      "sha256": "79500e8d33a8bb9c33e363c8ab8f7fc224c68c6c1d97c95421a5d3a1542300a2",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_fma32.spv",
+      "sha256": "d2db8a7b97dd8e7fc3d859a2d92a36bda64f7dfe9544b4513e2b855b31958562",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/attn_prefill_h4.spv",
+      "sha256": "5284c37ab1a197c5d5283595d0f464f0869650ec4996b0ed7d74602971c5d5f7",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/attn_prefill_h2_256.spv",
+      "sha256": "45ccc5efec14779903fe0c8308fe121dc98f9835b41b38b5853a924632deec12",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col128u4.spv",
+      "sha256": "80ec412ecb1cf35e5a7a170c0f1ddd20e4e4ec5a1a52f893126807007823c1c8",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_rb128.spv",
+      "sha256": "e3aa61c29fee7b98c2dcd70d28d5b1e15ad197bf403fc0051678db1a3ebba6a2",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_t2.spv",
+      "sha256": "e10808941bb2fb81bd9e84e46c274d79cf26d0e5d8417d0baf0845e246e832da",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col8.spv",
+      "sha256": "3b607098d1ddd0db6d805e314ac366f6177f46affd66495334d95f292a93ed02",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_tail.spv",
+      "sha256": "b079ee83243b8325062a58e70c79ca44efb96f2329f8de2e9c4f1eb957a3cb2e",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/attn_prefill_h4_256.spv",
+      "sha256": "122f6f7e8c64fb982813285b0c9ed49f3c7c20810e1c3bf5b62100db313753d7",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_pf128x32.spv",
+      "sha256": "ebca9dac22d4d53603a92ef1d3108cd54f2226fac2ae70995551db1d4c3ce134",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/attn_s_h.spv",
+      "sha256": "ec809bac1638f5d0c1259d580e6d7b2d6d6e24ff94097a052b53058edb958ae4",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_lut2.spv",
+      "sha256": "a34096b8d16a61cfa158e048a3f6fa0f80415dfa7611ac2b136d9af2ef760270",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/conv.spv",
+      "sha256": "a06119a4017fb6fd89d14c9cacc9bd5a7955163c118b019c0538ac811cb40f2e",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/attn_gqa6.spv",
+      "sha256": "c94da781538c847e0b1643c48bfc8096a8117aea9b0062f453bfbb7bd94defe2",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/prefill_expand.spv",
+      "sha256": "3429c1df5aeba3187c1b6c55f4de19d2939a692301e24452682dac8d705207e0",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_pf64x32.spv",
+      "sha256": "6f54d6778424c3f5593efcafc7b72af00e25bdc204eda85119fe5b91fa10976f",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/rmsnorm.spv",
+      "sha256": "44e1db36bcd6952c038eb1daae87ba9c9bf220f90e7df44fdece933e8668f4ea",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matvec_f32.spv",
+      "sha256": "a634038137cf28658f51dd7ef6e233037047fb8ba66554ac6d28009e7a5704fa",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/attn_gqa3.spv",
+      "sha256": "2d7ebce44031550fe20561d4b6921aef67543daf2f98a05d06c72f0301650ec1",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_dense64.spv",
+      "sha256": "db16cd702cf115ebf2dab35552e1b4ffa6c5289268645683348751c7b6e604d2",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_sw4.spv",
+      "sha256": "c6c04d8ee8b922db0650ddd183fcacfa9335c675b6c007da947f1199f90d8bd9",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_lutv.spv",
+      "sha256": "05592f04bb829cafc2975efacfb7fb4325fcc300b4498d1b5cec1b7012a2fd34",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_sq.spv",
+      "sha256": "fdb6790d1d7a017dfab5fba0fb1e177288b1fe211e2149f99cdfb4c4e56dbd8f",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/rope.spv",
+      "sha256": "ce1cd353bc3cfd80f1205d5c14485d9487a6e0ce6b50f4110a60557ab5de9e52",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_pf64k64.spv",
+      "sha256": "af2598e0ef4efa63071bd862057215386eae70a9bdd3c504f1fccc68bc48fe9a",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_pf128.spv",
+      "sha256": "e47d1ea71dd808dfef4576bad6caed3d431b7487de650285447880c93e1c13f4",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_rb64.spv",
+      "sha256": "a5925d54359dcb995af66dcd5b65cc5505bbda38c1987131fbad86ebb91be3f3",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col16.spv",
+      "sha256": "37e9922b94a4a048acb9b34a40b5262569cd57702dbbfb77a31669d31003afaa",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matvec_c8x2.spv",
+      "sha256": "8612e45a8da2f41098975f1017141e0aea2548a34b4083dca5c09b2fb1e66cd4",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_1024.spv",
+      "sha256": "63f96d7a4a30414bec357ac634f42540edc3fefe415fe8b6301c1c60c11f4d18",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_r128t32.spv",
+      "sha256": "b52b78241e49674ad535e1c4220e0bf6c44c2833f36b0693b6a34b0264b641e0",
+      "executable": false
+    },
+    {
+      "path": "shaders/spv-rust/matmul_col_dr.spv",
+      "sha256": "395fe0248fb5777ccf6df1baee867aa58df6622367c968e1f688701d67546fd2",
+      "executable": false
+    },
+    {
+      "path": "spv-variants/flat/matmul_t2.spv",
+      "sha256": "c995bb22e5c6a27aa54d6d18e14021c7e22d820a2eb9ba05f5475ec7a62be564",
+      "executable": false
+    },
+    {
+      "path": "spv-variants/compwrite/matmul_t2.spv",
+      "sha256": "4c25faad9c7ade93d85c8312e1380138c7c2d6badf1d3e1c86d6dc3b716c0758",
+      "executable": false
+    },
+    {
+      "path": "spv-variants/rowsvec/matmul_t2.spv",
+      "sha256": "a94b1b4e00be8c6203523b8512696dd7a71ddcc2fab70172b9c796ce56d7a576",
+      "executable": false
+    },
+    {
+      "path": "spv-variants/mixed/matmul_t2.spv",
+      "sha256": "1749ff19792408f2a168d01370eceec63f761d050fb8883ce4ccfce0b9d375cf",
+      "executable": false
+    },
+    {
+      "path": "spv-variants/2phase/matmul_t2.spv",
+      "sha256": "42cbb03360a303b6088df13ebc09af236b02a07be702b8fbfa24abc6f0c49c95",
+      "executable": false
+    },
+    {
+      "path": "tests/dequant_vs_ggml.rs",
+      "sha256": "bd3472a6a9ec5e6e38748e2ce779ebbb11ef0e61f6a055e27cc65e7cd6d72236",
+      "executable": false
+    },
+    {
+      "path": "tests/server_mtp_tests.rs",
+      "sha256": "7f4e54ee9977a32caa92d094be65a1fa279e0dd7232151f1fb14e16aa218f887",
+      "executable": false
+    },
+    {
+      "path": "tests/mtp_loop_regressions.rs",
+      "sha256": "efe52aed4fd985ce374ee34b91809beab7fdaf1ccf54743819c1d7c62e392afd",
+      "executable": false
+    },
+    {
+      "path": "tests/r012_review.rs",
+      "sha256": "81f4a332cb4b61c5781625329d677c4ff5cce4da2195ac37c00d8d41c0b21a6e",
+      "executable": false
+    },
+    {
+      "path": "tests/api_review_r011.rs",
+      "sha256": "9e0d88d4d50360eef41b513d7487103422c0adc3020556b8008b79d488039f23",
+      "executable": false
+    },
+    {
+      "path": "tests/claude_prefill.rs",
+      "sha256": "975ac5b2f86cda68f937208fb16b5bd16b9a81eb943046cdb232d22d1be9ee37",
+      "executable": false
+    },
+    {
+      "path": "tests/gguf_malformed.rs",
+      "sha256": "eb501573ef86a2085b4fb2a8905aaf546d1b66a4cb44202e04aba2f38434f54e",
+      "executable": false
+    },
+    {
+      "path": "tests/prefill_lut.rs",
+      "sha256": "be1fc1ad6c0c78fca8638bfb154391693bf5adca00bbb17fe9fd5ab3af086f60",
+      "executable": false
+    },
+    {
+      "path": "tests/review_regressions.rs",
+      "sha256": "7493df1385a85b3bf6f21ff319d5103ec1b71aebc45e237f07d8b41db97bac90",
+      "executable": false
+    },
+    {
+      "path": "tests/combined_review.rs",
+      "sha256": "b216c553bac5fac1d818f92f961e515e3a1315a7da8c923b68e7ed204a2fbfff",
+      "executable": false
+    },
+    {
+      "path": "tests/mtp_review.rs",
+      "sha256": "fca19e1982100911b875a028430147ccd97d6ac47d723f5f14d33e492c582e6a",
+      "executable": false
+    },
+    {
+      "path": "tests/mtp_tests.rs",
+      "sha256": "53fd8e0a72ff78260846199bde46e9aa6c8e4da5f86c5259e0df0c53dc895767",
+      "executable": false
+    },
+    {
+      "path": "tests/model_tests.rs",
+      "sha256": "d53e15940b5207ad8190830922d19e043dec065ece72b99390f2f07ab7fac015",
+      "executable": false
+    },
+    {
+      "path": "tests/kernel_parity.rs",
+      "sha256": "36e96fe79fc6f3d35f996a875254e63c5e20ff32f0760b4b9b5887910cb4532d",
+      "executable": false
+    },
+    {
+      "path": "tests/r012_state.rs",
+      "sha256": "b823f8d2835710ceb6eeaef0decaabfd68d222b9e1f86668abf1953d108411d8",
+      "executable": false
+    },
+    {
+      "path": "tests/vulkan_lifetime.rs",
+      "sha256": "1990e0e3211e2e627150debebf349cfd09af606dde3b629d43b0b960fabebf75",
+      "executable": false
+    },
+    {
+      "path": "tests/server_tests.rs",
+      "sha256": "d3cac7a37ddb535a007d7a45421175155280facfdcba0a23e5f2c88f60d8851a",
+      "executable": false
+    },
+    {
+      "path": "tests/prefill_review.rs",
+      "sha256": "efc88c41008ec3800c6d7b0bb47b7af20a1c5e6af96f4943c7a3058a1d5d23c9",
+      "executable": false
+    },
+    {
+      "path": "tests/data/ssm_out4.ptq1.f32",
+      "sha256": "1d0c3daa2ea097442c396cc768589b77dcb356a5564c2143e779644cd54e1228",
+      "executable": false
+    },
+    {
+      "path": "tests/data/ssm_out4.f32",
+      "sha256": "1d0c3daa2ea097442c396cc768589b77dcb356a5564c2143e779644cd54e1228",
+      "executable": false
+    },
+    {
+      "path": "tests/data/mtp_q80_3.f32",
+      "sha256": "2abe113296a3fb5802dc1f5e98cca2ba608388fb4ca156647d3d54012bb08141",
+      "executable": false
+    },
+    {
+      "path": "tests/data/mtp_q6k3.raw",
+      "sha256": "4440f97188d5ec7aeeacf5d7ab612c80e0a064a4923290181fb33453252933a6",
+      "executable": false
+    },
+    {
+      "path": "tests/data/mtp_q4k3.f32",
+      "sha256": "eb870f87caaa52af40fa3ee539936fe84e1de36fb088112628f7a29cccb5d6d7",
+      "executable": false
+    },
+    {
+      "path": "tests/data/attn_k3.raw",
+      "sha256": "e8000f1fb6ff5515efbd2dc5dd41fda41b95e910634016ca21a33311b831ba5b",
+      "executable": false
+    },
+    {
+      "path": "tests/data/attn_k3.ptq1.f32",
+      "sha256": "c427ef5373241fb63db070387bed9faf1dbdf41e645ad782800fb8049f40dbf9",
+      "executable": false
+    },
+    {
+      "path": "tests/data/ssm_out4.ptq1.raw",
+      "sha256": "1740af1398f26afc2009f261693ba7bd54b95a38af30769995082ce36c91c21f",
+      "executable": false
+    },
+    {
+      "path": "tests/data/mtp_q6k3.f32",
+      "sha256": "bdd7693e0b4fab2fcbbd9f0d76016a5b316f805e0b71719238cbfff1b795eb12",
+      "executable": false
+    },
+    {
+      "path": "tests/data/ssm_out4.raw",
+      "sha256": "22e6c347b719719578d7c3956d07a884a7410bcde6e293874739e8d71446c61f",
+      "executable": false
+    },
+    {
+      "path": "tests/data/mtp_q80_3.raw",
+      "sha256": "0655c74c9aeb8a40f5af1ec645f15c90d5c9da57d532b3324ff2e24ffce81f06",
+      "executable": false
+    },
+    {
+      "path": "tests/data/tokenizer_cases.jsonl",
+      "sha256": "7e6aebaa38ff92ab697a391a3c7686660d20728f76682c708d3b3d3de10ed153",
+      "executable": false
+    },
+    {
+      "path": "tests/data/attn_k3.ptq1.raw",
+      "sha256": "a6226f3f3b42223f4c4030d017b94d368e70e15fda10e3975a5c19dd0ce67ce3",
+      "executable": false
+    },
+    {
+      "path": "tests/data/attn_k3.f32",
+      "sha256": "c427ef5373241fb63db070387bed9faf1dbdf41e645ad782800fb8049f40dbf9",
+      "executable": false
+    },
+    {
+      "path": "tests/data/mtp_q4k3.raw",
+      "sha256": "5572d6baedf85dfe9e5b646576d1e337fc466f5f83c9d1031373b0a42aba98e5",
+      "executable": false
+    },
+    {
+      "path": "examples/config_inventory.rs",
+      "sha256": "c661d6f136f3491a6c4083030e7f5aa3495997e1a89835e433a47ae3c36e7af2",
+      "executable": false
+    },
+    {
+      "path": "tools/spvbuild/rust-toolchain.toml",
+      "sha256": "027f39c9c168f11fa9967abcefb8f93c3fe6c6d4fc795bc995fb59947f043fd3",
+      "executable": false
+    },
+    {
+      "path": "tools/spvbuild/Cargo.toml",
+      "sha256": "4d416c89cb3d3b34cd71b6791ed6e42126598962a15281936a6d3b11ebfc1f8a",
+      "executable": false
+    },
+    {
+      "path": "tools/spvbuild/Cargo.lock",
+      "sha256": "b02a41202d67b314d554ac8beb7b944052e799666083005cea98ee5d37cd6d48",
+      "executable": false
+    },
+    {
+      "path": "tools/spvbuild/src/main.rs",
+      "sha256": "7a6f01a87ff170cb2f93d8e3ca3ebe85f2bd2ef0fbd199f2931c5565e1fca0be",
+      "executable": false
+    },
+    {
+      "path": "Cargo.toml",
+      "sha256": "af26da28b72c1d6c913934b2c958f3c092ca297c96d3def5dd4f0447be45dd6a",
+      "executable": false
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "2f4ce0c2a67acd2a7655cc44a0901e623fb139c28f6390a9217d4b1c7bb25752",
+      "executable": false
+    },
+    {
+      "path": "build.rs",
+      "sha256": "9b5629d5550baf94160c079d9f4bc707ab3eab552d3cc4b99dfd27281e8e7374",
+      "executable": false
+    },
+    {
+      "path": "tools/oracle/dequant_oracle.c",
+      "sha256": "b3572d571236aa91c417a9be6d3776fb9ef128648c4602d32ed66010e8d80aac",
+      "executable": false
+    },
+    {
+      "path": "tools/oracle/logits_oracle.cpp",
+      "sha256": "6f19666901dfacbcf57b882eb33d98303ed6f4703ba105e1ebf9a3ce4cf195ac",
+      "executable": false
+    }
+  ]
+}

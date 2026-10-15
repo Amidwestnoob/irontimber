@@ -1,0 +1,35 @@
+// Causal GQA attention for one (head, token): scores -> softmax -> V, then sigmoid output gate.
+layout(local_size_x = 256) in;
+shared float qv[256];
+shared float red[256];
+void main() {
+    uint qo = pc.u[0], qts = pc.u[1], kco = pc.u[2], vco = pc.u[3], kvd = pc.u[4], pos0 = pc.u[5], hd = pc.u[6];
+    uint nh = pc.u[7], nkv = pc.u[8], oo = pc.u[9], ots = pc.u[10], scr = pc.u[11], ctx = pc.u[12]; float scale = pf(13);
+    uint h = gl_WorkGroupID.x, t = gl_WorkGroupID.y, l = gl_LocalInvocationID.x;
+    uint kh = h / (nh / nkv), n = pos0 + t + 1u;
+    uint qb = qo + t * qts + h * 2u * hd;
+    if (l < hd) qv[l] = a[qb + l];
+    barrier();
+    uint sb = scr + (t * nh + h) * ctx;
+    float mx = -1e30;
+    for (uint p = l; p < n; p += 256u) {
+        uint kb = kco + p * kvd + kh * hd; float s = 0.0;
+        for (uint i = 0; i < hd; i++) s += qv[i] * a[kb + i];
+        s *= scale; a[sb + p] = s; mx = max(mx, s);
+    }
+    red[l] = mx; barrier();
+    for (uint st = 128u; st > 0u; st >>= 1u) { if (l < st) red[l] = max(red[l], red[l + st]); barrier(); }
+    mx = red[0]; barrier();
+    float sum = 0.0;
+    for (uint p = l; p < n; p += 256u) { float e = exp(a[sb + p] - mx); a[sb + p] = e; sum += e; }
+    red[l] = sum; memoryBarrierBuffer(); barrier();
+    for (uint st = 128u; st > 0u; st >>= 1u) { if (l < st) red[l] += red[l + st]; barrier(); }
+    float inv = 1.0 / red[0];
+    if (l < hd) {
+        float o = 0.0;
+        for (uint p = 0; p < n; p++) o += a[sb + p] * a[vco + p * kvd + kh * hd + l];
+        o *= inv;
+        o *= sigm(a[qb + hd + l]);
+        a[oo + t * ots + h * hd + l] = o;
+    }
+}

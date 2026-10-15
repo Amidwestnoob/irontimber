@@ -1,0 +1,34 @@
+// Small-tile batched ternary matmul for short prompts (fewer than BONSAI_TILE_MIN tokens): 128 rows x 8 tokens
+// per 256-thread workgroup (thread = 4 rows x 1 token). Weights are decoded once per 8 tokens into shared
+// memory (matvec_t2 re-decodes them for every token).
+layout(local_size_x = 256) in;
+layout(std430, set = 0, binding = 2) readonly buffer WordsU { uint wq[]; };
+shared vec4 wf[32 * 32];
+shared float xf[32 * 8];
+void main() {
+    uint M = pc.u[0], K = pc.u[1], ntok = pc.u[2], xo = pc.u[3], xs = pc.u[4], yo = pc.u[5], ys = pc.u[6], accum = pc.u[7];
+    uint l = gl_LocalInvocationID.x, tx = l & 7u, ty = l >> 3u;
+    uint row0 = gl_WorkGroupID.x * 128u, tok0 = gl_WorkGroupID.y * 8u;
+    uint wpr = K >> 4u, bpr = K >> 7u;
+    vec4 acc = vec4(0.0);
+    for (uint kc = 0; kc < K; kc += 32u) {
+        uint rl = l >> 1u, wi = l & 1u, row = min(row0 + rl, M - 1u);
+        uint word = wq[row * wpr + (kc >> 4u) + wi];
+        float d = wsc[row * bpr + (kc >> 7u)];
+        [[unroll]] for (uint j = 0; j < 16u; j++) wf[(wi * 16u + j) * 32u + (rl >> 2u)][rl & 3u] = (float((word >> (2u * j)) & 3u) - 1.0) * d;
+        uint tl = l >> 5u, kk = l & 31u, t = tok0 + tl;
+        xf[kk * 8u + tl] = t < ntok ? a[xo + t * xs + kc + kk] : 0.0;
+        barrier();
+        [[unroll]] for (uint k = 0; k < 32u; k++) {
+            acc += wf[k * 32u + ty] * xf[k * 8u + tx];
+        }
+        barrier();
+    }
+    uint t = tok0 + tx;
+    if (t < ntok) {
+        [[unroll]] for (uint r = 0; r < 4u; r++) {
+            uint row = row0 + ty * 4u + r;
+            if (row < M) { uint yi = yo + t * ys + row; float v = acc[r]; a[yi] = accum != 0u ? a[yi] + v : v; }
+        }
+    }
+}

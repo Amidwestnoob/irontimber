@@ -1,0 +1,19 @@
+// neox-style (I)MRoPE for text positions on the first n_rot dims of each head, in place.
+layout(local_size_x = 64) in;
+void main() {
+    uint off = pc.u[0], hs = pc.u[1], ts = pc.u[2], nh = pc.u[3], pos0 = pc.u[5], nrot = pc.u[6];
+    float tsc = pf(7); uint s0 = pc.u[8], s1 = pc.u[9], s2 = pc.u[10], s3 = pc.u[11];
+    uint half_ = nrot / 2u;
+    uint gid = gl_GlobalInvocationID.x, t = gl_WorkGroupID.y;
+    if (gid >= nh * half_) return;
+    uint h = gid / half_, i = gid % half_;
+    uint sect = s0 + s1 + s2 + s3;
+    uint sector = sect > 0u ? i % sect : 0u;
+    bool use_e = sect > 0u && !((sector % 3u == 1u && sector < 3u * s1) || (sector % 3u == 2u && sector < 3u * s2) || (sector % 3u == 0u && sector < 3u * s0));
+    float p = use_e ? 0.0 : float(pos0 + t);
+    float th = p * pow(tsc, float(i));
+    float c = cos(th), s = sin(th);
+    uint b = off + t * ts + h * hs;
+    float x0 = a[b + i], x1 = a[b + i + half_];
+    a[b + i] = x0 * c - x1 * s; a[b + i + half_] = x0 * s + x1 * c;
+}

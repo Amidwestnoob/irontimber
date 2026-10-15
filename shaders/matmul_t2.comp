@@ -1,0 +1,46 @@
+// Tiled batched (prefill) ternary matmul: one 256-thread workgroup computes a 64-row x 64-token
+// output tile. Each K-chunk of 32 decodes 64x32 weights ((code-1)*d) and stages 64x32 activations
+// in shared memory, so each weight word is read once per 64 tokens (vs once per 8 in matvec_t2).
+layout(local_size_x = 256) in;
+layout(std430, set = 0, binding = 2) readonly buffer WordsU { uint wq[]; };
+#define BM 64u
+#define BN 64u
+#define BK 32u
+shared vec4 Ws[BK][BM / 4u];
+shared vec4 Xs[BK][BN / 4u];
+void main() {
+    uint M = pc.u[0], K = pc.u[1], ntok = pc.u[2], xo = pc.u[3], xs = pc.u[4], yo = pc.u[5], ys = pc.u[6], accum = pc.u[7];
+    uint lid = gl_LocalInvocationID.x, tx = lid & 15u, ty = lid >> 4u;
+    uint row0 = gl_WorkGroupID.x * BM, tok0 = gl_WorkGroupID.y * BN;
+    uint wpr = K >> 4u, bpr = K >> 7u;
+    vec4 acc[4];
+    [[unroll]] for (uint r = 0; r < 4u; r++) acc[r] = vec4(0.0);
+    for (uint kc = 0; kc < K; kc += BK) {
+        if (lid < 128u) {
+            uint rl = lid >> 1u, wi = lid & 1u, row = min(row0 + rl, M - 1u);
+            uint word = wq[row * wpr + (kc >> 4u) + wi];
+            float d = wsc[row * bpr + (kc >> 7u)];
+            [[unroll]] for (uint j = 0; j < 16u; j++) Ws[wi * 16u + j][rl >> 2u][rl & 3u] = (float((word >> (2u * j)) & 3u) - 1.0) * d;
+        }
+        [[unroll]] for (uint p = 0; p < 2u; p++) {
+            uint idx = lid + 256u * p, tl = idx >> 3u, kv = idx & 7u, t = tok0 + tl;
+            vec4 v = t < ntok ? a4[(xo + t * xs + kc) / 4u + kv] : vec4(0.0);
+            [[unroll]] for (uint c = 0; c < 4u; c++) Xs[kv * 4u + c][tl >> 2u][tl & 3u] = v[c];
+        }
+        barrier();
+        [[unroll]] for (uint k = 0; k < BK; k++) {
+            vec4 w = Ws[k][ty], x = Xs[k][tx];
+            acc[0] += w.x * x; acc[1] += w.y * x; acc[2] += w.z * x; acc[3] += w.w * x;
+        }
+        barrier();
+    }
+    [[unroll]] for (uint r = 0; r < 4u; r++) {
+        uint row = row0 + ty * 4u + r;
+        if (row < M) {
+            [[unroll]] for (uint c = 0; c < 4u; c++) {
+                uint t = tok0 + tx * 4u + c;
+                if (t < ntok) { uint yi = yo + t * ys + row; float v = acc[r][c]; a[yi] = accum != 0u ? a[yi] + v : v; }
+            }
+        }
+    }
+}

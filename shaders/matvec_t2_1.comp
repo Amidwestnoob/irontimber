@@ -1,0 +1,46 @@
+// Decode (single-token, or short prompts with grid x = token) ternary matvec, one 64-lane wave per 8 rows.
+// Each lane loads 64 activations (16 vec4) once per step and reuses them for all 8 rows,
+// cutting activation (L2) traffic 8x vs one-row-per-wave; weight reads stay coalesced (uvec4/lane).
+layout(local_size_x = 64) in;
+layout(constant_id = 0) const uint R = 8u;
+shared float red[64 * R];
+void main() {
+    uint M = pc.u[0], K = pc.u[1], ntok = pc.u[2], xo = pc.u[3], xs = pc.u[4], yo = pc.u[5], ys = pc.u[6], accum = pc.u[7];
+    uint lane = gl_LocalInvocationID.x;
+    uint r0 = (gl_WorkGroupID.y * gl_NumWorkGroups.x + gl_WorkGroupID.x) * R;
+    // Short-prompt mode (ntok > 1): grid x = token, y = row group, so the ntok workgroups that share
+    // the same 8 weight rows run back to back and re-read them from cache instead of DRAM.
+    if (ntok > 1u) { uint t = gl_WorkGroupID.x; r0 = gl_WorkGroupID.y * R; xo += t * xs; yo += t * ys; }
+    uint qpr = K >> 6, bpr = K >> 7, xb = xo / 4u;
+    float acc[R];
+    [[unroll]] for (uint r = 0; r < R; r++) acc[r] = 0.0;
+    for (uint qi = lane; qi < qpr; qi += 64u) {
+        vec4 x[16]; float xs[4];
+        [[unroll]] for (uint i = 0; i < 16u; i++) x[i] = a4[xb + qi * 16u + i];
+        [[unroll]] for (uint wd = 0; wd < 4u; wd++) xs[wd] = dot(x[wd*4u] + x[wd*4u+1u] + x[wd*4u+2u] + x[wd*4u+3u], vec4(1.0));
+        [[unroll]] for (uint r = 0; r < R; r++) {
+            uint row = min(r0 + r, M - 1u);
+            uvec4 w4 = wq4[row * qpr + qi];
+            float d = wsc[row * bpr + (qi >> 1)];
+            float s = 0.0;
+            [[unroll]] for (uint wd = 0; wd < 4u; wd++) {
+                uint word = w4[wd];
+                float t = 0.0;
+                [[unroll]] for (uint v = 0; v < 4u; v++) {
+                    uint sh = v * 8u;
+                    vec4 c = vec4(float((word >> sh) & 3u), float((word >> (sh + 2u)) & 3u), float((word >> (sh + 4u)) & 3u), float((word >> (sh + 6u)) & 3u));
+                    t += dot(c, x[wd * 4u + v]);
+                }
+                s += t - xs[wd];
+            }
+            acc[r] += s * d;
+        }
+    }
+    [[unroll]] for (uint r = 0; r < R; r++) red[r * 64u + lane] = acc[r];
+    barrier();
+    for (uint s = 32u; s > 0u; s >>= 1u) {
+        if (lane < s) { [[unroll]] for (uint r = 0; r < R; r++) red[r * 64u + lane] += red[r * 64u + lane + s]; }
+        barrier();
+    }
+    if (lane < R && r0 + lane < M) { uint yi = yo + r0 + lane; float v = red[lane * 64u]; a[yi] = accum != 0u ? a[yi] + v : v; }
+}

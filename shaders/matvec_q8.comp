@@ -1,0 +1,27 @@
+// Int8-group matvec for the grafted MTP head (Q8_0 / Q6_K repacked to Q8G16: 16 int8 per uvec4,
+// one f32 scale per 16 elements). One 64-lane wave per 4 rows; grid x = token, y = row group.
+layout(local_size_x = 64) in;
+shared float red[256];
+vec4 i8x4(uint w) { return vec4(float(int(w << 24) >> 24), float(int(w << 16) >> 24), float(int(w << 8) >> 24), float(int(w) >> 24)); }
+void main() {
+    uint M = pc.u[0], K = pc.u[1], xo = pc.u[3], xs = pc.u[4], yo = pc.u[5], ys = pc.u[6], accum = pc.u[7];
+    uint lane = gl_LocalInvocationID.x, t = gl_WorkGroupID.x, r0 = gl_WorkGroupID.y * 4u;
+    uint xb = (xo + t * xs) / 4u; yo += t * ys;
+    uint gpr = K >> 4u;
+    float acc[4] = float[4](0.0, 0.0, 0.0, 0.0);
+    for (uint g = lane; g < gpr; g += 64u) {
+        vec4 x0 = a4[xb + g * 4u], x1 = a4[xb + g * 4u + 1u], x2 = a4[xb + g * 4u + 2u], x3 = a4[xb + g * 4u + 3u];
+        [[unroll]] for (uint r = 0; r < 4u; r++) {
+            uint row = min(r0 + r, M - 1u); uvec4 w = wq4[row * gpr + g];
+            float d = dot(i8x4(w.x), x0) + dot(i8x4(w.y), x1) + dot(i8x4(w.z), x2) + dot(i8x4(w.w), x3);
+            acc[r] += d * wsc[row * gpr + g];
+        }
+    }
+    [[unroll]] for (uint r = 0; r < 4u; r++) red[r * 64u + lane] = acc[r];
+    barrier();
+    [[unroll]] for (uint st = 32u; st > 0u; st >>= 1u) {
+        if (lane < st) { [[unroll]] for (uint r = 0; r < 4u; r++) red[r * 64u + lane] += red[r * 64u + lane + st]; }
+        barrier();
+    }
+    if (lane < 4u && r0 + lane < M) { uint yi = yo + r0 + lane; float v = red[lane * 64u]; a[yi] = accum != 0u ? a[yi] + v : v; }
+}

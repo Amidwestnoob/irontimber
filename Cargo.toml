@@ -1,0 +1,36 @@
+[package]
+name = "bonsai"
+version = "0.1.0"
+edition = "2021"
+description = "All-Rust inference for Ternary-Bonsai-2-27B (qwen35, PQ2_0/PTQ1_0) on a FirePro W9100 via Vulkan (ash)"
+publish = false
+
+[features]
+default = ["vulkan"]
+vulkan = ["dep:ash"]
+
+[dependencies]
+memmap2 = "0.9"
+rayon = "1.10"
+half = "2.4"
+fancy-regex = "0.13"
+minijinja = { version = "2", default-features = false, features = ["builtins", "macros", "serde", "std_collections", "preserve_order", "json"] }
+minijinja-contrib = { version = "2", features = ["pycompat"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ash = { version = "0.38", optional = true }
+tiny_http = "0.12"
+ureq = { version = "2", default-features = false, features = ["json"] }
+
+[profile.release]
+opt-level = 3
+debug = 1
+codegen-units = 4
+
+[profile.test]
+opt-level = 3
+
+[profile.dist]
+inherits = "release"
+debug = 0
+strip = true

@@ -1,0 +1,39 @@
+// Prefill Gated DeltaNet (S=128): the head's state stays in registers for the whole token chunk
+// (loaded once, stored once) instead of two global read/write sweeps per token as in gdn.comp.
+// Workgroup = (head, 64-column half); thread = (column, row-quarter) holding 32 state values.
+layout(local_size_x = 256) in;
+shared float qs[128];
+shared float ks[128];
+shared float r1[256];
+shared float r2[256];
+void main() {
+    uint ntok = pc.u[0], co = pc.u[1], cs = pc.u[2], bo = pc.u[3], alo = pc.u[4], bas = pc.u[5], dto = pc.u[6], ao = pc.u[7];
+    uint so = pc.u[8], oo = pc.u[9], os = pc.u[10], nk = pc.u[11], S = pc.u[12], qk = pc.u[13];
+    uint h = gl_WorkGroupID.x, lid = gl_LocalInvocationID.x, rq = lid & 3u, j = gl_WorkGroupID.y * 64u + (lid >> 2u), kh = h % nk;
+    float scale = 1.0 / sqrt(float(S));
+    uint sb = so + h * S * S + rq * 32u * S + j;
+    float st[32];
+    [[unroll]] for (uint r = 0; r < 32u; r++) st[r] = a[sb + r * S];
+    for (uint t = 0; t < ntok; t++) {
+        uint cb = co + t * cs;
+        if (lid < 128u) { qs[lid] = a[cb + kh * S + lid]; ks[lid] = a[cb + qk + kh * S + lid]; }
+        float vj = a[cb + 2u * qk + h * S + j];
+        float beta = sigm(a[bo + t * bas + h]);
+        float x = a[alo + t * bas + h] + prm[dto + h];
+        float eg = exp(prm[ao + h] * (x > 20.0 ? x : log(1.0 + exp(x))));
+        barrier();
+        float s = 0.0;
+        [[unroll]] for (uint r = 0; r < 32u; r++) { st[r] *= eg; s += st[r] * ks[rq * 32u + r]; }
+        r1[lid] = s;
+        barrier();
+        uint b = lid & ~3u;
+        float delta = (vj - (r1[b] + r1[b + 1u] + r1[b + 2u] + r1[b + 3u])) * beta;
+        float o = 0.0;
+        [[unroll]] for (uint r = 0; r < 32u; r++) { st[r] += ks[rq * 32u + r] * delta; o += st[r] * qs[rq * 32u + r]; }
+        r2[lid] = o;
+        barrier();
+        if (rq == 0u) a[oo + t * os + h * S + j] = (r2[lid] + r2[lid + 1u] + r2[lid + 2u] + r2[lid + 3u]) * scale;
+        barrier();
+    }
+    [[unroll]] for (uint r = 0; r < 32u; r++) a[sb + r * S] = st[r];
+}

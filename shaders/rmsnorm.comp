@@ -1,0 +1,20 @@
+// Row norms. mode 0: rms*w, 1: rms*w*silu(z), 2: l2 (x/max(|x|,eps)). wg.x = row within token, wg.y = token.
+layout(local_size_x = 256) in;
+shared float red[256];
+void main() {
+    uint n = pc.u[0], io = pc.u[1], irs = pc.u[2], its = pc.u[3], oo = pc.u[4], ors = pc.u[5], ots = pc.u[6];
+    uint wo = pc.u[7], mode = pc.u[8], zo = pc.u[9], zrs = pc.u[10], zts = pc.u[11]; float eps = pf(12);
+    uint r = gl_WorkGroupID.x, t = gl_WorkGroupID.y, l = gl_LocalInvocationID.x;
+    uint ib = io + t * its + r * irs, ob = oo + t * ots + r * ors;
+    float s = 0.0;
+    for (uint i = l; i < n; i += 256u) { float v = a[ib + i]; s += v * v; }
+    red[l] = s; barrier();
+    for (uint st = 128u; st > 0u; st >>= 1u) { if (l < st) red[l] += red[l + st]; barrier(); }
+    float sc = mode == 2u ? 1.0 / max(sqrt(red[0]), eps) : 1.0 / sqrt(red[0] / float(n) + eps);
+    for (uint i = l; i < n; i += 256u) {
+        float v = a[ib + i] * sc;
+        if (wo != NONE) v *= prm[wo + i];
+        if (mode == 1u) v *= silu(a[zo + t * zts + r * zrs + i]);
+        a[ob + i] = v;
+    }
+}

@@ -1,0 +1,51 @@
+// Batched (prefill) ternary matmul; grid z = 8-token tile (no in-shader tile loop): one 64-lane wave per 4 rows x 8 tokens per pass.
+// Weights for the 4 rows are loaded and decoded once per step and reused for 8 tokens; activations reused for 4 rows.
+layout(local_size_x = 64) in;
+#define R 4u
+#define T 8u
+shared float red[64 * R * T];
+void main() {
+    uint M = pc.u[0], K = pc.u[1], ntok = pc.u[2], xo = pc.u[3], xs = pc.u[4], yo = pc.u[5], ys = pc.u[6], accum = pc.u[7];
+    uint lane = gl_LocalInvocationID.x;
+    uint r0 = (gl_WorkGroupID.y * gl_NumWorkGroups.x + gl_WorkGroupID.x) * R;
+    uint qpr = K >> 6, bpr = K >> 7;
+    { uint t0 = gl_WorkGroupID.z * T; if (t0 >= ntok) return;
+        uint nt = min(T, ntok - t0);
+        float acc[R * T];
+        [[unroll]] for (uint i = 0; i < R * T; i++) acc[i] = 0.0;
+        for (uint qi = lane; qi < qpr; qi += 64u) {
+            uvec4 w[R]; float d[R];
+            [[unroll]] for (uint r = 0; r < R; r++) { uint row = min(r0 + r, M - 1u); w[r] = wq4[row * qpr + qi]; d[r] = wsc[row * bpr + (qi >> 1)]; }
+            // Decode each row's 16 codes of word wd once, then reuse them for every token in the tile.
+            [[unroll]] for (uint wd = 0; wd < 4u; wd++) {
+                vec4 c[R * 4u];
+                [[unroll]] for (uint r = 0; r < R; r++) {
+                    uint word = w[r][wd];
+                    c[r * 4u] = vec4(float(word & 3u), float((word >> 2u) & 3u), float((word >> 4u) & 3u), float((word >> 6u) & 3u));
+                    c[r * 4u + 1u] = vec4(float((word >> 8u) & 3u), float((word >> 10u) & 3u), float((word >> 12u) & 3u), float((word >> 14u) & 3u));
+                    c[r * 4u + 2u] = vec4(float((word >> 16u) & 3u), float((word >> 18u) & 3u), float((word >> 20u) & 3u), float((word >> 22u) & 3u));
+                    c[r * 4u + 3u] = vec4(float((word >> 24u) & 3u), float((word >> 26u) & 3u), float((word >> 28u) & 3u), float((word >> 30u) & 3u));
+                }
+                [[unroll]] for (uint tt = 0; tt < T; tt++) {
+                    if (tt < nt) {
+                        uint b4 = (xo + (t0 + tt) * xs) / 4u + qi * 16u + wd * 4u;
+                        vec4 x0 = a4[b4], x1 = a4[b4 + 1u], x2 = a4[b4 + 2u], x3 = a4[b4 + 3u];
+                        float sx = dot(x0 + x1 + x2 + x3, vec4(1.0));
+                        [[unroll]] for (uint r = 0; r < R; r++)
+                            acc[r * T + tt] += (dot(c[r * 4u], x0) + dot(c[r * 4u + 1u], x1) + dot(c[r * 4u + 2u], x2) + dot(c[r * 4u + 3u], x3) - sx) * d[r];
+                    }
+                }
+            }
+        }
+        [[unroll]] for (uint i = 0; i < R * T; i++) red[i * 64u + lane] = acc[i];
+        barrier();
+        for (uint s = 32u; s > 0u; s >>= 1u) {
+            if (lane < s) { [[unroll]] for (uint i = 0; i < R * T; i++) red[i * 64u + lane] += red[i * 64u + lane + s]; }
+            barrier();
+        }
+        if (lane < R * T) {
+            uint r = lane / T, tt = lane % T;
+            if (r0 + r < M && tt < nt) { uint yi = yo + (t0 + tt) * ys + r0 + r; float v = red[lane * 64u]; a[yi] = accum != 0u ? a[yi] + v : v; }
+        }
+    }
+}

@@ -1,0 +1,12 @@
+// Small dense f32 matvec (ssm_alpha / ssm_beta, stored as f32 in Params). One row per 64-thread group.
+layout(local_size_x = 64) in;
+shared float red[64];
+void main() {
+    uint M = pc.u[0], K = pc.u[1], ntok = pc.u[2], xo = pc.u[3], xs = pc.u[4], yo = pc.u[5], ys = pc.u[6], wo = pc.u[7];
+    uint row = gl_WorkGroupID.x, t = gl_WorkGroupID.y, l = gl_LocalInvocationID.x;
+    float s = 0.0;
+    for (uint k = l; k < K; k += 64u) s += prm[wo + row * K + k] * a[xo + t * xs + k];
+    red[l] = s; barrier();
+    for (uint st = 32u; st > 0u; st >>= 1u) { if (l < st) red[l] += red[l + st]; barrier(); }
+    if (l == 0u) a[yo + t * ys + row] = red[0];
+}
