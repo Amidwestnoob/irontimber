@@ -1,0 +1,19 @@
+// Causal depthwise conv (kernel K<=4) + SiLU over tokens, carrying the (K-1)-deep state. Thread per channel.
+layout(local_size_x = 256) in;
+void main() {
+    uint cd = pc.u[0], ntok = pc.u[1], io = pc.u[2], is_ = pc.u[3], oo = pc.u[4], os = pc.u[5], wo = pc.u[6], so = pc.u[7], K = pc.u[8];
+    uint ch = gl_GlobalInvocationID.x;
+    if (ch >= cd) return;
+    float st[3];
+    for (uint i = 0; i < 3u; i++) st[i] = i < K - 1u ? a[so + i * cd + ch] : 0.0;
+    for (uint t = 0; t < ntok; t++) {
+        float x = a[io + t * is_ + ch];
+        float s = 0.0;
+        for (uint i = 0; i < K - 1u; i++) s += st[i] * prm[wo + ch * K + i];
+        s += x * prm[wo + ch * K + K - 1u];
+        a[oo + t * os + ch] = silu(s);
+        for (uint i = 0; i + 1u < K - 1u; i++) st[i] = st[i + 1u];
+        st[K - 2u] = x;
+    }
+    for (uint i = 0; i < K - 1u; i++) a[so + i * cd + ch] = st[i];
+}

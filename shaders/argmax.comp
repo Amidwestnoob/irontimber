@@ -1,0 +1,16 @@
+// Greedy pick on the GPU so a decode step reads back 4 bytes instead of the 1 MB logit row.
+// Ties resolve to the lowest index (same as the host argmax).
+layout(local_size_x = 256) in;
+shared float bv[256];
+shared uint bi[256];
+void main() {
+    uint off = pc.u[0], n = pc.u[1], dst = pc.u[2], l = gl_LocalInvocationID.x;
+    float best = -3.0e38; uint idx = 0xffffffffu;
+    for (uint i = l; i < n; i += 256u) { float v = a[off + i]; if (v > best) { best = v; idx = i; } }
+    bv[l] = best; bi[l] = idx; barrier();
+    for (uint s = 128u; s > 0u; s >>= 1u) {
+        if (l < s) { float o = bv[l + s]; uint oi = bi[l + s]; if (o > bv[l] || (o == bv[l] && oi < bi[l])) { bv[l] = o; bi[l] = oi; } }
+        barrier();
+    }
+    if (l == 0u) a[dst] = uintBitsToFloat(bi[0]);
+}

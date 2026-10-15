@@ -1,0 +1,13 @@
+[package]
+name = "bonsai-kernels"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["lib", "dylib"]
+
+[dependencies]
+spirv-std = "=0.10.0-alpha.1"
+glam = { version = ">=0.30.8, <0.31", default-features = false, features = ["libm"] }
+
+[workspace]

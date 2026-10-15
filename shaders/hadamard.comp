@@ -1,0 +1,30 @@
+// Prism activation transform on 1024-wide blocks: forward y = H(s * P x), inverse y = s * (H x).
+// wg.x = block, wg.y = token.
+layout(local_size_x = 256) in;
+shared float v[1024];
+void main() {
+    uint n = pc.u[0], io = pc.u[1], its = pc.u[2], oo = pc.u[3], ots = pc.u[4], so = pc.u[5], inv = pc.u[6];
+    uint hd = pc.u[7], nk = pc.u[8], rep = pc.u[9];
+    uint blk = gl_WorkGroupID.x, t = gl_WorkGroupID.y, l = gl_LocalInvocationID.x;
+    for (uint i = l; i < 1024u; i += 256u) {
+        uint g = blk * 1024u + i, src = g;
+        if (hd != 0u) { uint i0 = g % hd, q = g / hd, r = q % rep, k = q / rep; src = i0 + hd * (k + nk * r); }
+        float x = a[io + t * its + src];
+        if (inv == 0u && so != NONE) x *= prm[so + g];
+        v[i] = x;
+    }
+    barrier();
+    for (uint h = 1u; h < 1024u; h <<= 1u) {
+        for (uint p = l; p < 512u; p += 256u) {
+            uint i = (p / h) * 2u * h + (p % h), j = i + h;
+            float x = v[i], y = v[j]; v[i] = x + y; v[j] = x - y;
+        }
+        barrier();
+    }
+    for (uint i = l; i < 1024u; i += 256u) {
+        uint g = blk * 1024u + i;
+        float x = v[i] * 0.03125;
+        if (inv != 0u && so != NONE) x *= prm[so + g];
+        a[oo + t * ots + g] = x;
+    }
+}

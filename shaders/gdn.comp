@@ -1,0 +1,30 @@
+// Gated DeltaNet recurrence, one workgroup per value head, thread j owns state column j.
+// GPU state layout: T[i*S + j] = S[i][j] (coalesced across j).
+layout(local_size_x = 128) in;
+shared float qs[128];
+shared float ks[128];
+void main() {
+    uint ntok = pc.u[0], co = pc.u[1], cs = pc.u[2], bo = pc.u[3], alo = pc.u[4], bas = pc.u[5], dto = pc.u[6], ao = pc.u[7];
+    uint so = pc.u[8], oo = pc.u[9], os = pc.u[10], nk = pc.u[11], S = pc.u[12], qk = pc.u[13];
+    uint h = gl_WorkGroupID.x, j = gl_LocalInvocationID.x, kh = h % nk;
+    float scale = 1.0 / sqrt(float(S));
+    uint sb = so + h * S * S;
+    for (uint t = 0; t < ntok; t++) {
+        uint cb = co + t * cs;
+        qs[j] = a[cb + kh * S + j];
+        ks[j] = a[cb + qk + kh * S + j];
+        float vj = a[cb + 2u * qk + h * S + j];
+        barrier();
+        float beta = sigm(a[bo + t * bas + h]);
+        float x = a[alo + t * bas + h] + prm[dto + h];
+        float g = prm[ao + h] * (x > 20.0 ? x : log(1.0 + exp(x)));
+        float eg = exp(g);
+        float s = 0.0;
+        for (uint i = 0; i < S; i++) { float m = a[sb + i * S + j] * eg; a[sb + i * S + j] = m; s += m * ks[i]; }
+        float delta = (vj - s) * beta;
+        float acc = 0.0;
+        for (uint i = 0; i < S; i++) { float m = a[sb + i * S + j] + ks[i] * delta; a[sb + i * S + j] = m; acc += m * qs[i]; }
+        a[oo + t * os + h * S + j] = acc * scale;
+        barrier();
+    }
+}
