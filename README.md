@@ -32,7 +32,7 @@ Qualification retained **100 canonical tests**, **54 matching measured token his
 
 ## Build
 
-Requirements: Rust/Cargo, a Vulkan loader, and a working GPU Vulkan driver. The qualified host toolchain was **Rust 1.98.1** on Linux. No model weights are included.
+Requirements: Rust/Cargo, a Vulkan loader, and a working GPU Vulkan driver. The qualified host toolchain was **Rust 1.98.1** on Linux. No full model or MTP-head files are included; small model-derived numerical test vectors retain the model license.
 
 ```sh
 cargo build --locked --release
@@ -83,4 +83,4 @@ Set `mtp:false` for ordinary decoding. Omitted MTP is off in this launch configu
 
 ## License
 
-MIT for this code, with upstream notices preserved. Models are not redistributed. See [`LICENSE`](LICENSE).
+MIT for this code, with upstream notices preserved. Full models are not redistributed; small numerical reference fixtures retain their model license. See [`LICENSE`](LICENSE).
