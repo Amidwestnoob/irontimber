@@ -1,0 +1,6 @@
+{
+  "git": {
+    "sha1": "e2e4d529a5ead1364228530d301ebbca4ef90262"
+  },
+  "path_in_vcs": "crates/rustc_codegen_spirv"
+}

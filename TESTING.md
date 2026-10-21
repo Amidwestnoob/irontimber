@@ -1,6 +1,6 @@
-# Initial public-snapshot verification
+# Historical initial public-snapshot verification
 
-The exported C10 production source and shader hashes match `SOURCE_MANIFEST.json`; no inference implementation was renamed or edited for branding.
+At public base 5b3f0974c05b594fd294071ebf8dcb63639881b4, the exported C10 production source and shader hashes matched `SOURCE_MANIFEST.json`; no inference implementation was renamed or edited for branding. The NVIDIA repair changes selected host paths and adds separate shader modules. That historical manifest is retained for provenance, not presented as a current-tree manifest. Current repair checks and their hardware applicability are described in NVIDIA-REPAIR.md and the accompanying job receipts.
 
 Fresh public export checks:
 

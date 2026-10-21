@@ -13,6 +13,8 @@ use std::collections::HashMap;
 use std::ffi::CStr;
 use std::sync::Arc;
 mod lifetime;
+pub mod nvidia;
+pub mod nvidia_oracles;
 use lifetime::{DeviceOwner, InstanceOwner, ShaderModule};
 
 const SHADERS: &[(&str, &[u8])] = &[
@@ -236,7 +238,7 @@ pub struct Ctx {
     pub dsl: vk::DescriptorSetLayout, pub layout: vk::PipelineLayout, pub dpool: vk::DescriptorPool,
     pub pipes: HashMap<&'static str, vk::Pipeline>, pub staging: Buf,
     // Review trace counts recorded dispatches only after their fence completed.
-    pub(crate) rust: bool, trace: bool, pending_dispatches: std::cell::Cell<u64>, nobar: std::cell::Cell<bool>,
+    pub(crate) rust: bool, pub nv: bool, trace: bool, pending_dispatches: std::cell::Cell<u64>, nobar: std::cell::Cell<bool>,
     pending_q8: std::cell::Cell<u64>, pub completed_dispatches: std::cell::Cell<u64>, pub completed_q8: std::cell::Cell<u64>,
     /// BONSAI_PROFILE=1: GPU timestamps after every dispatch, aggregated per kernel
     pub prof: Option<(vk::QueryPool, std::cell::RefCell<Vec<&'static str>>, std::cell::RefCell<HashMap<&'static str, (f64, u64)>>)>,
@@ -258,6 +260,7 @@ impl Ctx {
     pub fn new(want: Option<&str>, max_sets: u32) -> Result<Self, String> { Self::new_with(want, max_sets, rust_kernels()) }
     /// Same, choosing the kernel set explicitly (rust-gpu SPIR-V when `rust`, else GLSL).
     pub fn new_with(want: Option<&str>, max_sets: u32, rust: bool) -> Result<Self, String> {
+        nvidia::validate_environment()?;
         unsafe {
             let entry = ash::Entry::load().map_err(|e| format!("vulkan loader: {e}"))?;
             let app = vk::ApplicationInfo::default().api_version(vk::API_VERSION_1_1).application_name(c"bonsai");
@@ -275,13 +278,24 @@ impl Ctx {
             let qfi = instance.get_physical_device_queue_family_properties(pdev).iter().position(|q| q.queue_flags.contains(vk::QueueFlags::COMPUTE)).ok_or("no compute queue")? as u32;
             let prio = [1.0f32];
             let qci = [vk::DeviceQueueCreateInfo::default().queue_family_index(qfi).queue_priorities(&prio)];
-            let device = instance.create_device(pdev, &vk::DeviceCreateInfo::default().queue_create_infos(&qci), None).map_err(|e| e.to_string())?;
+            let nv = rust && nvidia::supported(instance_owner._entry.as_ref().unwrap(), &instance, pdev);
+            let device = if nv {
+                let names: Vec<_> = nvidia::EXTENSIONS.iter().map(|n| n.as_ptr()).collect();
+                let mut cm = vk::PhysicalDeviceCooperativeMatrixFeaturesKHR::default().cooperative_matrix(true);
+                let mut f = vk::PhysicalDeviceShaderFloat16Int8Features::default().shader_float16(true).shader_int8(true);
+                let mut mm = vk::PhysicalDeviceVulkanMemoryModelFeatures::default().vulkan_memory_model(true);
+                let mut dot = vk::PhysicalDeviceShaderIntegerDotProductFeatures::default().shader_integer_dot_product(true);
+                instance.create_device(pdev, &vk::DeviceCreateInfo::default().queue_create_infos(&qci)
+                    .enabled_extension_names(&names).push_next(&mut cm).push_next(&mut f).push_next(&mut mm).push_next(&mut dot), None)
+            } else { instance.create_device(pdev, &vk::DeviceCreateInfo::default().queue_create_infos(&qci), None) }.map_err(|e| e.to_string())?;
             let owner = Arc::new(DeviceOwner { device: device.clone(), _instance: instance_owner });
             let queue = device.get_device_queue(qfi, 0);
             let mem_props = instance.get_physical_device_memory_properties(pdev);
             // Own every handle immediately, so any later ? drops exactly the
             // successfully constructed prefix (including staging/map failures).
             let mut c = Self::empty(owner, pdev, queue, mem_props, props, rust);
+            c.nv = nv;
+            eprintln!("[vk] selected NVIDIA path enabled={nv}; no DeviceScope/CM2/experimental pipelines");
             c.cpool = device.create_command_pool(&vk::CommandPoolCreateInfo::default().queue_family_index(qfi).flags(vk::CommandPoolCreateFlags::RESET_COMMAND_BUFFER), None).map_err(|e| e.to_string())?;
             c.cb = device.allocate_command_buffers(&vk::CommandBufferAllocateInfo::default().command_pool(c.cpool).command_buffer_count(1).level(vk::CommandBufferLevel::PRIMARY)).map_err(|e| e.to_string())?[0];
             c.cur.set(c.cb);
@@ -295,7 +309,8 @@ impl Ctx {
             let ps = [vk::DescriptorPoolSize::default().ty(vk::DescriptorType::STORAGE_BUFFER).descriptor_count(4 * max_sets)];
             c.dpool = device.create_descriptor_pool(&vk::DescriptorPoolCreateInfo::default().max_sets(max_sets).pool_sizes(&ps), None).map_err(|e| e.to_string())?;
             eprintln!("[vk] kernels: {}", if rust { "rust-gpu (shaders/spv-rust)" } else { "GLSL (shaders/*.comp)" });
-            for (n, spv) in if rust { SHADERS_RUST } else { SHADERS } {
+            let extra = if nv { nvidia::SHADERS } else { &[] };
+            for (n, spv) in (if rust { SHADERS_RUST } else { SHADERS }).iter().chain(extra.iter()) {
                 // Dev/A-B hook: BONSAI_SPV_DIR=<dir> overrides individual rust kernels with <dir>/<name>.spv.
                 let ov = if rust { std::env::var("BONSAI_SPV_DIR").ok().and_then(|d| std::fs::read(format!("{d}/{n}.spv")).ok()) } else { None };
                 let code = ash::util::read_spv(&mut std::io::Cursor::new(ov.as_deref().unwrap_or(spv))).map_err(|e| e.to_string())?;
@@ -545,6 +560,7 @@ impl<'a> VkEngine<'a> {
         let mut lay = Lay { x: al(t * e), xn: al(t * e), hx: al(t * wide), big1: al(t * big), big2: al(t * big), conv: al(t * c.conv_dim()),
             beta: al(t * c.ssm_vheads), alpha: al(t * c.ssm_vheads), o: al(t * wide), scr: al(t*c.n_head*ctx_len.max(260)), logits: al(c.n_vocab + 64), ..Default::default() };
         if dense_words>0 {lay.dense=al(dense_words);lay.dense_words=dense_words;}
+
         let kvd = c.n_head_kv * c.head_dim;
         let kvn = if kv16 { ctx_len * kvd / 2 } else { ctx_len * kvd };
         if kv16 { lay.kvs = al(2 * t * kvd); }
@@ -636,7 +652,7 @@ impl<'a> VkEngine<'a> {
     }
 
     pub fn review_identity(&self) -> serde_json::Value {
-        serde_json::json!({"device":format!("0x{:04x}",self.ctx.props.device_id), "rust":self.ctx.rust,
+        serde_json::json!({"device":format!("0x{:04x}",self.ctx.props.device_id), "rust":self.ctx.rust, "nvidia_selected":self.ctx.nv,
             "layers":self.cpu.cfg.n_layer, "arena":format!("{:?}",self.arena.buf), "arena_bytes":self.lay.total,"prefill_batch":self.ubatch,
             "head_loaded":self.has_mtp(), "context_capacity":self.ctx_len, "kv_dtype":if self.kv16 {"f16"} else {"f32"}, "completed_dispatches":self.ctx.completed_dispatches.get(), "completed_q8":self.ctx.completed_q8.get(), "position":self.pos})
     }
@@ -652,6 +668,7 @@ impl<'a> VkEngine<'a> {
 
     fn mv(&self, w: &DevMat, ntok: u32, xo: u32, xs: u32, yo: u32, ys: u32, acc: bool) {
         assert!(xo % 4 == 0 && (ntok == 1 || xs % 4 == 0), "activation offsets must be vec4 aligned");
+
         if ntok >= tile_min() {
             let tile=std::env::var("BONSAI_PREFILL_TILE").unwrap_or_else(|_| "old".into());
             if tile=="dense" && self.ctx.rust && w.rows%4==0 && w.rows as usize*w.cols as usize<=self.lay.dense_words {
@@ -678,6 +695,12 @@ impl<'a> VkEngine<'a> {
         }
         // r012: 2..tile_min tokens (MTP verify, short prompts): 2 tokens share every weight load.
         if ntok >= 2 && self.ctx.rust && std::env::var("BONSAI_MV").map_or(true, |v| v != "t2_1") {
+            if self.ctx.nv {
+                let groups=w.rows.div_ceil(16);let gx=groups.min(65535);let gy=groups.div_ceil(gx);
+                let (pipe,t)=if ntok==2 {("matvec_r16x2",2)}else{("matvec_r16x4",4)};
+                self.ctx.dispatch(pipe,w.set,&[w.rows,w.cols,ntok,xo,xs,yo,ys,acc as u32],(gx,gy,ntok.div_ceil(t)));
+                return;
+            }
             let groups = w.rows.div_ceil(8); let gx = groups.min(65535); let gy = groups.div_ceil(gx);
             self.ctx.dispatch("matvec_c8x2", w.set, &[w.rows, w.cols, ntok, xo, xs, yo, ys, acc as u32], (gx, gy, ntok.div_ceil(2)));
             return;
@@ -714,6 +737,11 @@ impl<'a> VkEngine<'a> {
             let room = attention_dispatch_room(self.ctx_len,nh as usize,nt as usize) as u32; let total = pos0 + nt;
             let mut c = 64u32; while c < 1024 && nt * nh * total.div_ceil(c) * 260 > room { c *= 2; }
             let smax = total.div_ceil(c); assert!(nt * nh * smax * 260 <= room, "attention scratch");
+            if self.ctx.nv {
+                self.ctx.dispatch("attn_s_h2",self.set0,&[qo,qts,kco,vco,kvd,pos0,hd,nh,nkv,l.scr,c,smax,scale],(nh,nt,smax));
+                self.ctx.dispatch("attn_comb2",self.set0,&[qo,qts,pos0,nh,l.scr,c,smax,oo,nh*hd],(nh,nt,1));
+                return;
+            }
             let mode=std::env::var("BONSAI_PREFILL_ATTN").unwrap_or_else(|_|"old".into());
             let(pipe,queries,heads)=select_prefill_gqa(nt,c,pos0,nh,nkv,hd,&mode);
             if heads>1 {
@@ -741,6 +769,7 @@ impl<'a> VkEngine<'a> {
     }
     fn mvq(&self, w: &DevMat, ntok: u32, xo: u32, xs: u32, yo: u32, ys: u32, acc: bool) {
         assert!(xo % 4 == 0 && (ntok == 1 || xs % 4 == 0) && w.rows % 4 == 0 && w.cols % 16 == 0);
+
         self.ctx.dispatch("matvec_q8", w.set, &[w.rows, w.cols, ntok, xo, xs, yo, ys, acc as u32], (ntok, w.rows / 4, 1));
     }
     fn copy(&self, src: u32, dst: u32, n: u32) {
@@ -796,14 +825,14 @@ impl<'a> VkEngine<'a> {
                         self.norm(sd as usize, 2 * c.ssm_groups as u32, nt, l.conv, sd, cd, l.conv, sd, cd, NONE, 2, (0, 0, 0));
                         for t in 0..nt {
                             let gpc = [1, l.conv + t * cd, cd, l.beta + t * nv, l.alpha + t * nv, nv, p.dt, p.a, l.ssm[il], l.o + t * inner, inner, c.ssm_groups as u32, sd, c.qk_dim() as u32];
-                            cx.dispatch("gdn", self.set0, &gpc, (nv, 1, 1));
+                            if cx.nv && sd==128 {cx.dispatch("gdn_p6",self.set0,&gpc,(nv,4,1));}else{cx.dispatch("gdn", self.set0, &gpc, (nv, 1, 1));}
                             if t == 0 { self.copy(l.ssm[il], l.ck_ssm[il], ssz); cx.barrier(); }
                         }
                     } else {
                     cx.dispatch("conv", self.set0, &[cd, nt, l.big1, cd, l.conv, cd, p.conv_w, l.conv_st[il], c.conv_k as u32], (cd.div_ceil(256), 1, 1));
                     self.norm(sd as usize, 2 * c.ssm_groups as u32, nt, l.conv, sd, cd, l.conv, sd, cd, NONE, 2, (0, 0, 0));
                     let gpc = [nt, l.conv, cd, l.beta, l.alpha, nv, p.dt, p.a, l.ssm[il], l.o, inner, c.ssm_groups as u32, sd, c.qk_dim() as u32];
-                    if nt > 1 && sd == 128 && std::env::var("BONSAI_OLD_GDN").is_err() { cx.dispatch("gdn_p", self.set0, &gpc, (nv, 2, 1)); } else { cx.dispatch("gdn", self.set0, &gpc, (nv, 1, 1)); }
+                    if cx.nv && sd==128 {cx.dispatch("gdn_p6",self.set0,&gpc,(nv,4,1));}else if nt > 1 && sd == 128 && std::env::var("BONSAI_OLD_GDN").is_err() { cx.dispatch("gdn_p", self.set0, &gpc, (nv, 2, 1)); } else { cx.dispatch("gdn", self.set0, &gpc, (nv, 1, 1)); }
                     }
                     self.norm(sd as usize, nv, nt, l.o, sd, inner, l.o, sd, inner, p.ssm_norm, 1, (l.big2, sd, inner));
                     let perm = if c.gdn_v_grouped { Some((sd, c.ssm_groups as u32, nv / c.ssm_groups as u32)) } else { None };

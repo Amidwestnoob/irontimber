@@ -1,0 +1,11 @@
+[package]
+name = "spvbuild-nv"
+version = "0.1.0"
+edition = "2024"
+[dependencies]
+spirv-builder = "=0.10.0-alpha.1"
+[workspace]
+
+[patch.crates-io]
+rustc_codegen_spirv = { path = "vendor/rustc_codegen_spirv" }
+rspirv = { path = "vendor/rspirv" }

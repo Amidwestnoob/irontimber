@@ -1,4 +1,5 @@
 //! CPU-only combined geometry boundary; no device acquisition.
+#![cfg(feature="vulkan")]
 #[test]
 fn accepted_head_geometry_and_plain_prefill_batch_cpu() {
     for n in [64,128,256,512] {

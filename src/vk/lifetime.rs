@@ -60,7 +60,7 @@ impl super::Ctx {
             seg: Vec::new(), seg_used: Default::default(), cur: Default::default(),
             dsl: vk::DescriptorSetLayout::null(), layout: vk::PipelineLayout::null(),
             dpool: vk::DescriptorPool::null(), pipes: Default::default(), prof: None,
-            rust, trace: std::env::var_os("BONSAI_REVIEW_TRACE").is_some(),
+            rust, nv: false, trace: std::env::var_os("BONSAI_REVIEW_TRACE").is_some(),
             pending_dispatches: Default::default(), nobar: Default::default(),
             pending_q8: Default::default(), completed_dispatches: Default::default(),
             completed_q8: Default::default(),

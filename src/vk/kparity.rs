@@ -71,11 +71,18 @@ pub fn run(dev: Option<&str>, tol: f32) -> Result<(String, bool), String> {
     for nt in [1u32,2,3,21] {
         fixtures.push((format!("r012 c8 family nt={nt} row tail"),if nt==1 {"matvec_c8"} else {"matvec_c8x2"},vec![999,WK,nt,0,WK,MB as u32,1000,1],(999u32.div_ceil(8),1,nt.div_ceil(2))));
     }
+    if ru.c.nv {
+        for nt in [2u32,3,7,21] {
+            fixtures.push((format!("NV r16x2 nt={nt} row tail"),"matvec_r16x2",vec![999,WK,nt,0,WK,MB as u32,1000,1],(999u32.div_ceil(16),1,nt.div_ceil(2))));
+            fixtures.push((format!("NV r16x4 nt={nt} row tail"),"matvec_r16x4",vec![999,WK,nt,0,WK,MB as u32,1000,1],(999u32.div_ceil(16),1,nt.div_ceil(4))));
+        }
+        fixtures.push(("NV gdn_p6 full intermediate state".into(),"gdn_p6",vec![6,0,1024,MB as u32,MB as u32+64,4,0,16,2*MB as u32,3*MB as u32,512,2,128,256],(4,4,1)));
+    }
     for (name, pipe, pc, grid) in fixtures {
         let mut res = vec![];
         for s in [&g, &ru] {
             s.c.upload(&s.arena, 0, &ab);
-            let (actual,gr)=if !s.c.rust && pipe.starts_with("matvec_c8") {("matvec_t2_1",if pc[2]==1 {(pc[0].div_ceil(8),1,1)} else {(pc[2],pc[0].div_ceil(8),1)})} else {(pipe,grid)};
+            let (actual,gr)=if !s.c.rust && (pipe.starts_with("matvec_c8") || pipe.starts_with("matvec_r16")) {("matvec_t2_1",if pc[2]==1 {(pc[0].div_ceil(8),1,1)} else {(pc[2],pc[0].div_ceil(8),1)})} else if !s.c.rust && pipe=="gdn_p6" {("gdn",(4,1,1))} else {(pipe,grid)};
             s.c.begin(); s.c.dispatch(actual, s.set, &pc, gr); s.c.submit_wait();
             let mut b = vec![0u8; AN * 4]; s.c.download(&s.arena, 0, &mut b);
             res.push(b.chunks_exact(4).map(|c| f32::from_le_bytes(c.try_into().unwrap())).collect::<Vec<f32>>());

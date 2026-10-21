@@ -14,7 +14,7 @@ This initial public release exports the verified **C10** engine. The repository 
 - Qualified context capacity **8192**, using **f16 KV**, with MTP head loaded once.
 - Same-process state isolation, cancellation recovery, terminal rollback and reload/lifetime checks in the qualified evidence.
 
-This is **one-model, one-card qualification**, not a general-purpose replacement for llama.cpp. Separate Nvidia development is not included or claimed to be qualified here.
+The retained C10 results below are **one-model, one-card historical qualification**, not a general-purpose replacement for llama.cpp. This local repair additionally integrates a deliberately restricted NVIDIA path; its current qualification is recorded separately, never inferred from W9100 results. See [NVIDIA-REPAIR.md](NVIDIA-REPAIR.md).
 
 ## Measured on the W9100
 
@@ -45,7 +45,7 @@ cd tools/spvbuild
 cargo run --locked --release
 ```
 
-Rebuilding shaders or using another driver/compiler creates a new build that needs its own qualification. The qualified executable SHA-256 is recorded in `SOURCE_MANIFEST.json`; a fresh rebuild is not assumed byte-identical.
+Rebuilding shaders or using another driver/compiler creates a new build that needs its own qualification. The historical C10 executable SHA-256 is recorded in `SOURCE_MANIFEST.json`; it is not the identity of this repaired build. A fresh rebuild is not assumed byte-identical.
 
 ## Run
 

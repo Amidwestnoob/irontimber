@@ -62,6 +62,7 @@ fn main() {
         }
         return;
     }
+    #[cfg(feature = "vulkan")]
     if a.cmd == "attn-bench" {
         let it: u32 = a.kv.get("iters").map(|s| s.parse().unwrap()).unwrap_or(20);
         for (ctx, nt) in [(16, 1), (500, 1), (2000, 1), (4000, 1), (7000, 1), (2000, 2), (2000, 64), (6000, 64)] {
@@ -69,6 +70,7 @@ fn main() {
         }
         return;
     }
+    #[cfg(feature = "vulkan")]
     if a.cmd == "kernel-parity" {
         let (r, ok) = bonsai::vk::kparity::run(a.kv.get("device").map(|s| s.as_str()), 1e-4).unwrap();
         print!("{r}"); std::process::exit(if ok { 0 } else { 1 });
