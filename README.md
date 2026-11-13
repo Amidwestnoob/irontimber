@@ -4,7 +4,7 @@
 
 An experimental Rust/ash/Vulkan inference engine for **Ternary-Bonsai-2-27B**, qualified on the **AMD FirePro W9100 (16 GB)**. IronTimber gives older hardware useful local inference without requiring a CUDA runtime.
 
-This initial public release exports the verified **C10** engine. The repository has a new name; the Cargo package and executable remain **`bonsai`** to preserve the tested implementation and command compatibility.
+IronTimber starts from the verified **C10** engine and includes the [2026-11-13 MTP catch-up correction](benchmarks/2026-11-13-mtp-catchup.md). The Cargo package and executable remain **`bonsai`** for command compatibility.
 
 ## What works
 
@@ -17,6 +17,16 @@ This initial public release exports the verified **C10** engine. The repository 
 This is **one-model, one-card qualification**, not a general-purpose replacement for llama.cpp. Separate Nvidia development is not included or claimed to be qualified here.
 
 ## Measured on the W9100
+
+### 2026-11-13 catch-up update
+
+The latest qualified update fixes a head-history transfer dependency and avoids unused MTP head work for prompts fitting one 64-token chunk. Longer prompts retain the full catch-up schedule. Across the frozen workload, aggregate warm whole-request medians decreased from **32.6195 s to 32.4764 s (0.44% less time)** against the best safe original-C10 mode for each workload. This is a small observed difference, **not** a universal speedup or a statistical-significance claim. Cold start did not improve.
+
+The retained W9100 qualification includes **101 Rust tests**, **88 complete input/output comparisons**, and **141 exact requests over 602.97 seconds**. These are the prior qualified run for the exact implementation, not newly rerun GPU benchmarks of a public rebuild. See [methods, per-case results and limits](benchmarks/2026-11-13-mtp-catchup.md) and [public-source verification](TESTING.md).
+
+### Historical C10 versus Prism
+
+The original C10 qualification below remains historical; it is not the incremental benefit of the catch-up update.
 
 Against the pinned Prism Vulkan baseline, using the same model and greedy requests:
 
@@ -56,7 +66,7 @@ export MODEL=/path/to/Ternary-Bonsai-2-27B-PQ2_0.gguf
 export MTP_HEAD=/path/to/head.gguf
 . config/w9100-c10.env
 
-./target/release/bonsai serve   --model "$MODEL" --backend vulkan --device HAWAII --layers 64   --ctx 8192 --kv f16 --prompt-cache off   --host 127.0.0.1:18082   --mtp --mtp-head "$MTP_HEAD" --mtp-default off
+./target/release/bonsai serve   --model "$MODEL" --backend vulkan --device HAWAII --layers 64   --ctx 8192 --kv f16 --prompt-cache on   --host 127.0.0.1:18082   --mtp --mtp-head "$MTP_HEAD" --mtp-default off
 ```
 
 The configuration file is part of the qualified runtime setup; do not omit it and assume unqualified defaults reproduce the reported performance. Set aside the W9100 for this engine rather than loading another GPU model alongside it. Qualified runs preserved at least 1 GiB free VRAM.
@@ -70,6 +80,8 @@ curl --fail --no-buffer http://127.0.0.1:18082/v1/chat/completions   -H 'Content
 ```
 
 Set `mtp:false` for ordinary decoding. Omitted MTP is off in this launch configuration. MTP requires greedy-compatible sampling settings; explicit sampled MTP is rejected. Prompt plus subsequent decode positions must fit the context; oversized explicit requests are rejected rather than silently truncated.
+
+Prompt caching is enabled in the example. It reuses one exact consumed-history extension, not arbitrary common prefixes; `cache_prompt:false` opts out and divergence resets state. MTP bypasses and resets this ordinary cache: **combined MTP/prefix reuse is unsupported**. MTP remains request-selectable/default-off because a long-prompt/short-reply workload was slower with it enabled.
 
 ## Testing and safety
 

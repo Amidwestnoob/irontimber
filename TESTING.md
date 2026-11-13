@@ -1,6 +1,24 @@
-# Initial public-snapshot verification
+# Public-source verification
 
-The exported C10 production source and shader hashes match `SOURCE_MANIFEST.json`; no inference implementation was renamed or edited for branding.
+## 2026-11-13 MTP catch-up update
+
+`src/vk/mod.rs` and `src/vk/catchup_tests.rs` are byte-identical to the accepted W9100 implementation. All other exported production source and shader bytes retain their baseline identities. `SOURCE_MANIFEST.json` records the current source and the stored qualified executable; a fresh host rebuild is not assumed binary-identical.
+
+Fresh public-source verification with Rust 1.98.1: release binaries built, all test targets compiled, and **19 model-free CPU tests passed**, zero failures or ignored tests. Gitleaks and a private-path/key-header byte scan passed with no findings. Two pre-existing compiler warnings were retained without unrelated source changes. These commands were used:
+
+```sh
+cargo build --locked --release --bins -j 2
+cargo test --locked --release --no-run -j 2
+cargo test --locked --release -j 2 --test gguf_malformed --test api_review_r011 --test combined_review --test prefill_lut
+```
+
+The new `state_only_catchup_preserves_all_head_kv_and_drafts` test is compiled by `--no-run`. Execution requires the actual W9100, both model files and exclusive supervised GPU access. It checks prompt lengths 1, 2, 63, 64, 65 and 129, comparing complete active head state and subsequent drafts against an independently serialized full schedule. Its passing hardware run is retained qualification, not a new model-free CPU result.
+
+The corresponding qualified implementation passed 101 Rust tests and 88 complete input/output comparisons, plus 141 exact mixed requests over 602.97 seconds. A separate private deployment guard passed 18 tests; that guard/configuration/logging is not shipped here and those 18 are **not** public Cargo tests. See the [scoped qualification summary](benchmarks/2026-11-13-mtp-catchup.md). No new GPU qualification is implied by public build/CPU checks.
+
+## Original C10 public export
+
+The following checks describe the original export. Its production source and shader hashes match the [baseline source manifest](https://github.com/Amidwestnoob/irontimber/blob/5b3f0974c05b594fd294071ebf8dcb63639881b4/SOURCE_MANIFEST.json); no inference implementation was renamed or edited for branding.
 
 Fresh public export checks:
 
