@@ -905,6 +905,11 @@ impl<'a> VkEngine<'a> {
     /// One MTP head pass over `toks` at positions pos0.. paired with h rows at arena offset `hoff`; returns the
     /// argmax of the last row (the draft).
     fn mtp_pass(&mut self, toks: &[u32], pos0: u32, hoff: u32) -> u32 {
+        self.mtp_pass_mode(toks, pos0, hoff, true).expect("draft requested")
+    }
+    // Catch-up consumes only head KV state. Future passes reconstruct mx from
+    // their own trunk hidden rows and tokens. Retain submission/fence ownership.
+    fn mtp_pass_mode(&mut self, toks: &[u32], pos0: u32, hoff: u32, predict: bool) -> Option<u32> {
         let c = self.cpu.cfg.clone(); let l = self.lay.clone(); let nt = toks.len() as u32; let e = c.n_embd as u32;
         assert!(toks.len() <= MAXT && pos0 >= 1 && (pos0 as usize) + toks.len() <= self.ctx_len);
         let (gm, hd) = self.mtp.as_ref().unwrap();
@@ -921,14 +926,19 @@ impl<'a> VkEngine<'a> {
         self.mvq(&gm.eh, nt, l.mcat, 2 * e, l.mx, e, false);
         self.norm(c.n_embd, 1, nt, l.mx, 0, e, l.xn, 0, e, gm.attn_norm, 0, (0, 0, 0));
         let slot0 = pos0 - 1; let kc = l.mkc + slot0 * kvd; let vc = l.mvc + slot0 * kvd;
-        self.mvq(&gm.q, nt, l.xn, e, l.big1, qf, false);
+        if predict { self.mvq(&gm.q, nt, l.xn, e, l.big1, qf, false); }
         self.mvq(&gm.k, nt, l.xn, e, kc, kvd, false);
         self.mvq(&gm.v, nt, l.xn, e, vc, kvd, false);
-        self.norm(c.head_dim, nh, nt, l.big1, 2 * hdm, qf, l.big1, 2 * hdm, qf, gm.q_norm, 0, (0, 0, 0));
+        if predict { self.norm(c.head_dim, nh, nt, l.big1, 2 * hdm, qf, l.big1, 2 * hdm, qf, gm.q_norm, 0, (0, 0, 0)); }
         self.norm(c.head_dim, nkv, nt, kc, hdm, kvd, kc, hdm, kvd, gm.k_norm, 0, (0, 0, 0));
         let ts = (c.rope_base).powf(-2.0 / c.n_rot as f32); let s = c.rope_sections; let half = c.n_rot as u32 / 2;
-        cx.dispatch("rope", self.set0, &[l.big1, 2 * hdm, qf, nh, nt, pos0, c.n_rot as u32, fb(ts), s[0] as u32, s[1] as u32, s[2] as u32, s[3] as u32], ((nh * half).div_ceil(64), nt, 1));
+        if predict { cx.dispatch("rope", self.set0, &[l.big1, 2 * hdm, qf, nh, nt, pos0, c.n_rot as u32, fb(ts), s[0] as u32, s[1] as u32, s[2] as u32, s[3] as u32], ((nh * half).div_ceil(64), nt, 1)); }
         cx.dispatch("rope", self.set0, &[kc, hdm, kvd, nkv, nt, pos0, c.n_rot as u32, fb(ts), s[0] as u32, s[1] as u32, s[2] as u32, s[3] as u32], ((nkv * half).div_ceil(64), nt, 1));
+        if !predict {
+            cx.submit_wait();
+            cx.collect_profile();
+            return None;
+        }
         self.attention(l.big1, qf, l.mkc, l.mvc, kvd, slot0, hdm, nh, nkv, l.o, nt);
         self.mvq(&gm.o, nt, l.o, nh * hdm, l.mx, e, true);
         self.norm(c.n_embd, 1, nt, l.mx, 0, e, l.xn, 0, e, gm.post_norm, 0, (0, 0, 0));
@@ -945,7 +955,7 @@ impl<'a> VkEngine<'a> {
         cx.submit_wait();
         cx.collect_profile();
         let mut u = 0u32; unsafe { std::ptr::copy_nonoverlapping(cx.staging.ptr as *const u32, &mut u, 1); }
-        u
+        Some(u)
     }
     /// Independent regression readback of ACTIVE recurrent and KV state only. Rejected KV
     /// suffix slots are logically invalidated by pos; subsequent writes overwrite them.
@@ -963,6 +973,9 @@ impl<'a> VkEngine<'a> {
     pub fn read_x(&self) -> Vec<f32> { let mut b = vec![0u8; self.cpu.cfg.n_embd * 4]; self.ctx.download(&self.arena, self.lay.x as u64 * 4, &mut b); b.chunks_exact(4).map(|c| f32::from_le_bytes(c.try_into().unwrap())).collect() }
 }
 
+#[cfg(test)]
+mod catchup_tests;
+
 impl crate::mtp::MtpBackend for VkEngine<'_> {
     fn mtp_single(&mut self, x: u32) -> u32 { self.eval_argmax(&[x]) }
     fn mtp_prefill(&mut self, prompt: &[u32]) -> u32 {
@@ -978,10 +991,15 @@ impl crate::mtp::MtpBackend for VkEngine<'_> {
             self.ctx.begin();
             if s > 0 { self.copy(l.hprev, l.mh, e); }
             if nt > 1 { self.copy(l.hrow, l.mh + e, (nt - 1) * e); }
+            // hprev is both a source above and the destination below. Vulkan copy
+            // commands do not imply a transfer read-before-write dependency.
+            self.ctx.barrier();
             self.copy(l.hrow + (nt - 1) * e, l.hprev, e);
             self.ctx.barrier(); self.ctx.submit_wait();
             let (toks, pos0, hoff) = if s == 0 { (&ch[1..], 1u32, l.mh + e) } else { (ch, s as u32, l.mh) };
-            if !toks.is_empty() { self.mtp_pass(toks, pos0, hoff); }
+            // Multi-chunk catch-up retains the original complete schedule: active
+            // head-state parity for abbreviated intermediate chunks is not qualified.
+            if !toks.is_empty() { self.mtp_pass_mode(toks, pos0, hoff, n > self.ubatch); }
         }
         self.mpos = n; self.hp = (l.hprev, 1);
         next

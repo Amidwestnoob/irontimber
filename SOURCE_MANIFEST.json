@@ -1,7 +1,7 @@
 {
-  "snapshot": "C10",
-  "qualified_binary_sha256": "59967c858cfd1c1868f65bad1e254a12ff0587467404bb4c07e1ddaa767eeac9",
-  "scope": "Every exported production source, shader, lockfile and original test file is byte-identical to the qualified C10 snapshot. Public documentation/configuration/metadata are new. Historical private orchestration and logs are not exported.",
+  "snapshot": "C10 + 2026-11-13 MTP catch-up correction",
+  "qualified_binary_sha256": "d11e67f98dbc0bb081c55f8d3324f98df225b7c9d7b87292c9ba8c6dd5ffa0c5",
+  "scope": "Reviewed exported production source, shaders, dependency locks and tests. The two updated Rust files match the qualified 2026-11-13 implementation; all other listed bytes retain baseline public identities. Public documentation/metadata are separate. Private deployment controls, raw logs and model weights are not exported. Fresh public builds are not assumed binary-identical to the qualified executable.",
   "files": [
     {
       "path": "src/model.rs",
@@ -90,7 +90,7 @@
     },
     {
       "path": "src/vk/mod.rs",
-      "sha256": "9acb36c27ce8b043afedbe0740838ac0d939a7bd519595067e3e9c6c17594525",
+      "sha256": "913ddcc682e8c64c2ea38998296d7947ddd41abe22fb16cabfeaa14b2aa5a97a",
       "executable": false
     },
     {
@@ -1052,6 +1052,24 @@
       "path": "tools/oracle/logits_oracle.cpp",
       "sha256": "6f19666901dfacbcf57b882eb33d98303ed6f4703ba105e1ebf9a3ce4cf195ac",
       "executable": false
+    },
+    {
+      "path": "src/vk/catchup_tests.rs",
+      "sha256": "80ea4a2907a5cac4b223ca4bc727f61ff2eed829e602d51a10d19c820ee417e5",
+      "executable": false
     }
-  ]
+  ],
+  "baseline_qualified_binary_sha256": "59967c858cfd1c1868f65bad1e254a12ff0587467404bb4c07e1ddaa767eeac9",
+  "update": {
+    "date": "2026-11-13",
+    "baseline_public_commit": "5b3f0974c05b594fd294071ebf8dcb63639881b4",
+    "qualified_exact_base_patch_sha256": "15eb731cfa60e4333643242da9bafb40cb96fa033d5c07413dd6e134935d3aa7",
+    "qualified_rust_files": {
+      "src/vk/mod.rs": "913ddcc682e8c64c2ea38998296d7947ddd41abe22fb16cabfeaa14b2aa5a97a",
+      "src/vk/catchup_tests.rs": "80ea4a2907a5cac4b223ca4bc727f61ff2eed829e602d51a10d19c820ee417e5"
+    },
+    "qualification_summary": "benchmarks/2026-11-13-mtp-catchup.md",
+    "fresh_public_checks": "TESTING.md",
+    "no_new_gpu_benchmark": true
+  }
 }
